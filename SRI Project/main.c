@@ -4,7 +4,6 @@
  * Created: 5/5/2015 12:49:42 AM
  *  Author: NMs
  */ 
-
 #define F_CPU 8000000UL // 8 MHz
 
 #include <stdio.h>
