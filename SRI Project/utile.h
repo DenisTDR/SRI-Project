@@ -9,7 +9,7 @@
 #ifndef UTILE_H_
 #define UTILE_H_
 
-
+void parcare(void);
 void ledAction(char);
 void blinkLedD6(void);
 void ReadSensor0(void);

@@ -79,6 +79,7 @@ void sendTimeAsString(){
 }
 uint8_t started = 0, stopped = 0, reload = 0;
 volatile uint32_t lastValues[4];
+
 void fctSmechera(){
 	if(reload){
 		reload = 0;
@@ -142,5 +143,38 @@ void doTimer(){
 			state = 2;
 	}
 		
-	
+}
+uint8_t r=100, t=100,blocat=0,fata=0;
+void parcare()
+{
+	blocat=0;
+	/*r=getValueOfSensor(0);// nu ii mai stiu dar presupun ca asta e cel din fata
+	if(r>500)//pp ca s-a detectat un obiect in fata
+	{
+		 rotirePeLoc(100,1);
+		 blocat=1;
+	}
+	else
+		blocat=0;*/
+	// nu mai vira stanga in momentul in care senzor fata nu mai detecteaza nici o valuare
+	t=getValueOfSensor(1);
+	/*if(t<250 && blocat==0)  //daca masina s-a departat de zid si nu este in timpul viajului
+		{
+			goFrontRight(100,155);
+			blocat=2;
+		}
+	else if(blocat==2)
+		blocat=0;*/
+	if(t>400 && blocat==0)
+		{
+			goFrontLeft(100,155);
+			blocat=3;			
+		}
+		else 
+			if(blocat==3)
+				blocat=0;
+	if(blocat==0)
+	{
+		goFront(1,155);
+	}
 }
