@@ -46,7 +46,7 @@ void ledAction(char act){
 			break;
 		
 		case 2:
-			addEntryToTimerQueue(&blinkLedD6_v1, (500UL * 1000UL), Periodic);
+			addEntryToTimerQueue(&blinkLedD6_v1, (1000UL * 1000UL), Periodic);
 			BTTransmitStr("ledul va 'blincari'.");
 			break;
 	}
@@ -60,14 +60,14 @@ extern uint32_t time;
 
 void ReadSensor0(){
 	char msg[70];
-	resetSensorQueue(0);
+	//resetSensorQueue(0);
 	uint16_t x = getValueOfSensor(0);
 	sprintf(msg, "sensor #0: %d", x);	
 	BTTransmitStr(msg);
 }
 void ReadSensor1(){
 	char msg[70];
-	resetSensorQueue(1);
+	//resetSensorQueue(1);
 	uint16_t x = getValueOfSensor(1);
 	sprintf(msg, "sensor #1: %d", x);
 	BTTransmitStr(msg);
@@ -111,23 +111,34 @@ void fctSmechera(){
 volatile uint8_t state=-1;
 void doTimer(){
 	uint16_t sensorValue = getValueOfSensor(1);
+	if(sensorValue < 430 && 430 - sensorValue >15)
+		sensorValue +=15;
+	else
+		if(sensorValue > 430 && sensorValue-430 > 15)
+			sensorValue-=15;
 	float diff = PID1cal(430, sensorValue);
+	int diffi8 = (int)(diff*100);
+	char str[25];
+	sprintf(str, "%d %d", diffi8, sensorValue);
+	BTTransmitStr(str);
 	
-	removeEntryFromTimerQueue(&stopEngines);
-	if(diff > 2 && diff < 2){
+	if(diff > 3 && diff < 3){
 		if(state!=0)
-			goFront(10, 175),
+			//goFront(10, 175),
+			BTTransmitStr("front"),
 			state = 0;
 			
 	}
 	else if(diff>2){
 		if(state!=1)
-			goFrontLeft(10, 175),
+			//goFrontRight(10, 175),
+			BTTransmitStr("right"),
 			state = 1;
 	}
 	else{
 		if(state!=2)
-			goFrontRight(10, 175),
+			//goFrontLeft(10, 175),
+			BTTransmitStr("left"),
 			state = 2;
 	}
 		

@@ -20,7 +20,6 @@
 #include "../Car/Engines.h"
 #include "../utile.h"
 #include "../Timing/Timing.h"
-#include "../Car/Sensors.h"
 
 void prelucreazaDatele(void);
 
@@ -31,17 +30,7 @@ void reTransmit(void){
 	BTTransmitMsg(msg, 4);
 }
 
-void BTInit()
-{
-	/*Pentru Receive*/
-	UBRR0L = 51; //baud rate 9600 bps
-	UCSR0B |= _BV(RXCIE0);
-	UCSR0B |= _BV(RXEN0);
-	UCSR0B |= _BV(TXEN0);
-	//UCSR0B |= (_BV(TXEN0))|(_BV(RXCIE0))|(_BV(RXCIE0));//activare receive,transmit si receive interrupt
-	//UCSR0C |=(1<<UPM01)|(1<<UPM00);
-	
-}
+
 
 BTState state;
 CarAction actiune;
@@ -55,13 +44,13 @@ void resetBTProtocol(){
 
 extern volatile uint8_t debugging;
 void BTProtocolReadByte(unsigned char theByte){
-
+	cli();
 	switch (state){
 		case WaitingStartByte:
 			if(theByte == StartByte){
 				state = WaitingCarAction;
 				debugging = 0;
-				addEntryToTimerQueue(&resetBTProtocol, 1000UL * 1000UL * 10UL, Once);
+				//addEntryToTimerQueue(&resetBTProtocol, 1000UL * 1000UL * 1000UL, Once);
 				debugging = 1;
 			}
 			break;
@@ -94,7 +83,6 @@ void BTProtocolReadByte(unsigned char theByte){
 			state = WaitingEndByte;
 			break;
 		case WaitingEndByte:
-			removeEntryFromTimerQueue(&resetBTProtocol);
 			if(theByte != 0x55){
 				reTransmit(); // error ocurred, send retransmit signal
 			}
@@ -105,13 +93,14 @@ void BTProtocolReadByte(unsigned char theByte){
 			break;
 
 	}
-
+	sei();
 	//printf("\nstare noua %d: ", state);
 }
 extern volatile uint8_t ms2p1_enabled;
 
 void prelucreazaDatele(void){
-	cli();
+	//BTTransmitStr("Procesez ceva!");
+	//cli();
 	if(actiune >= GoFront && actiune <= GoRightB){
 		unsigned char timp = date[0];
 		unsigned char viteza = date[1];
@@ -140,50 +129,62 @@ void prelucreazaDatele(void){
 		return;
 	}
 	
-	
 	switch(actiune){
 		case GoM2P2:
 			completeEnclosedContour();
 		break;
-		case GoM2P3:			
+		case GoM2P3:
 			checkFreeParallelParkingPlace();
 		break;
 		case Led:
 			ledAction(date[0]);
 		break;
 		case ReadSensorValue:
+		{
 			if(date[1] == 1){
-				if(date[0] == 0)
-				addEntryToTimerQueue(&ReadSensor0, 1000UL * 1000UL, Periodic);
-				else if(date[0] == 1)
-				addEntryToTimerQueue(&ReadSensor1, 1000UL * 1000UL, Periodic);
+				if(date[0] == 0){
+					if((char)existsEntryInTimerQueue(&ReadSensor0))
+						removeEntryFromTimerQueue(&ReadSensor0);
+					else
+						addEntryToTimerQueue(&ReadSensor0, 1000UL * 1000UL, Periodic);
+					
+				}
+				else if(date[0] == 1){
+					if((char)existsEntryInTimerQueue(&ReadSensor1))
+						removeEntryFromTimerQueue(&ReadSensor1);
+					else
+						addEntryToTimerQueue(&ReadSensor1, 1000UL * 1000UL, Periodic);
+				}
 			}
 			else
-			if(date[0] == 0)
-			ReadSensor0();
-			else if(date[0] == 1)
-			ReadSensor0();
+				if(date[0] == 0)
+					ReadSensor0();
+				else if(date[0] == 1)
+					ReadSensor1();
+			
+		}
 		break;
 		case StopEngines:
 			stopEngines();
 		break;
 		case RotirePeLocDreapta:
 			rotirePeLoc(date[0], RightEngines);
-		break;
+		break;		
 		case RotirePeLocStanga:
 			rotirePeLoc(date[0], LeftEngines);
 		break;
 		case DisplayMessage:
 			addEntryToTimerQueue(&fctSmechera, 10UL * 1000UL, Periodic);
 		break;
-		case EndAction:
-			resetTimerQueue();
-			resetALL();
+		case GoM2P1:
+			addEntryToTimerQueue(&doTimer, 1000UL * 1000UL, Periodic);
+			BTTransmitStr("doTimer started");
+		break;
 		default:
-			break;		
+		break;
 	}
-	
-	sei();
+	//alta actiune...
+	//sei();
 }
 
 void BTTransmitStr(char *theString){
@@ -217,10 +218,15 @@ void BTTransmitChar(unsigned char theChar){
 	_delay_ms(10);
 }
 
-void resetALL(){
-	state = WaitingStartByte;
-	resetSensorQueue(FrontLeftSensor);
-	resetSensorQueue(FrontRightSensor);
-	resetSensorQueue(FrontLeftSensor);
-	resetSensorQueue(FrontLeftSensor);
+void BTInit()
+{
+	/*Pentru Receive*/
+	UBRR0L = 51; //baud rate 9600 bps
+	UCSR0B |= _BV(RXCIE0);
+	UCSR0B |= _BV(RXEN0);
+	UCSR0B |= _BV(TXEN0);
+	//UCSR0B |= (_BV(TXEN0))|(_BV(RXCIE0))|(_BV(RXCIE0));//activare receive,transmit si receive interrupt
+	//UCSR0C |=(1<<UPM01)|(1<<UPM00);
+	
+	state=WaitingStartByte;
 }

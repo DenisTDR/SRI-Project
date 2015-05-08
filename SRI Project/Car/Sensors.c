@@ -30,6 +30,7 @@ uint16_t sVals[4][7];
 
 uint16_t getValueOfSensor(Sensor sensor){	
 	
+	resetSensorQueue(sensor);
 	sVals[sensor][0] = 0;
 	uint8_t i;
 	uint16_t s;

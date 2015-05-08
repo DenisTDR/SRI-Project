@@ -27,7 +27,7 @@ void timer_init()
 	//PIND = (1 << PIND0);
 	TIMSK1|=(1<<TOIE1);
 	TCNT1 = 0x00;
-	TCCR1B = 0x01;//pt ca modificam pen ultimu bit din datasheet
+	TCCR1B = 0x01;//pt ca modificam ultimu bit din datasheet
 }
 ISR(TIMER1_OVF_vect)// Din datasheet timerq(are 8 mh) => 8/8= 1 microsecunde
 {
@@ -57,14 +57,16 @@ int main(void)
 	initTimeQueue();
 	
 	sei();
-	BTTransmitStr("-main start123-");
+	BTTransmitStr("  >>>main start<<<  ");
 	
-	PORTD |= 1<<PIND6;
+	PORTD |= 1<<PIND5;
 	
     while(1)
     {
 		//_delay_ms(1);
 		checkTimeQueue();
-        //BTTransmitStr("-main loop-");
+		
+		
+		//BTTransmitStr("-main loop-");
     }
 }
