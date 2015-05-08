@@ -37,7 +37,7 @@ void addEntryToTimerQueue(void (*_theFct) (void), uint32_t _delay, uint8_t _repe
 		if(TimerQueue[i].pointerFct == 0)
 			break;
 		if(TimerQueue[i].pointerFct == _theFct){
-			if(debugging || 1){
+			if(debugging){
 				char msg[100];
 				sprintf(msg, "Functia asta e deja in coada! cu delay: %lu", TimerQueue[i].delay);
 				BTTransmitStr(msg);
@@ -47,7 +47,7 @@ void addEntryToTimerQueue(void (*_theFct) (void), uint32_t _delay, uint8_t _repe
 	}
 	if(i == TimerQueueSize){
 		//nu mai e loc in coada
-		if(debugging || 1)
+		if(debugging)
 			BTTransmitStr("Coada e full!");
 		return;
 	}
@@ -60,7 +60,7 @@ void addEntryToTimerQueue(void (*_theFct) (void), uint32_t _delay, uint8_t _repe
 	
 	TimerQueue[i] = thisEntry;
 	
-	if(debugging || 1){
+	if(debugging){
 		char msg[100];		
 		sprintf(msg, "Entry adaugat in coada! la index %d si cu delay: %lu", i, TimerQueue[i].delay);
 		BTTransmitStr(msg);

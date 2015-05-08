@@ -118,10 +118,10 @@ void prelucreazaDatele(void){
 			goBackLeft(timp, viteza);
 			break;
 			case GoRightF:
-			goFrontRight(timp, viteza);
+				goFrontRight(timp, viteza);
 			break;
 			case GoRightB:
-			goBackRight(timp, viteza);
+				goBackRight(timp, viteza);
 			break;
 			default:
 				break;
@@ -168,10 +168,10 @@ void prelucreazaDatele(void){
 			stopEngines();
 		break;
 		case RotirePeLocDreapta:
-			rotirePeLoc(date[0], RightEngines);
+			rotirePeLoc(date[0], date[1], RightEngines);
 		break;		
 		case RotirePeLocStanga:
-			rotirePeLoc(date[0], LeftEngines);
+			rotirePeLoc(date[0], date[1], LeftEngines);
 		break;
 		case DisplayMessage:
 			addEntryToTimerQueue(&fctSmechera, 10UL * 1000UL, Periodic);

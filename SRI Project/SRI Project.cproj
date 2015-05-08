@@ -15,8 +15,7 @@
     <AssemblyName>SRI Project</AssemblyName>
     <Name>SRI Project</Name>
     <RootNamespace>SRI Project</RootNamespace>
-    <ToolchainFlavour>
-    </ToolchainFlavour>
+    <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <CacheFlash>true</CacheFlash>

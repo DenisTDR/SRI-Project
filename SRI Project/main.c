@@ -60,6 +60,8 @@ int main(void)
 	
 	PORTD |= 1<<PIND5;
 	
+	addEntryToTimerQueue(&functieRotireStanga, 1000UL * 50UL, Periodic);
+	
     while(1)
     {
 		//_delay_ms(1);

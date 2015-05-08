@@ -18,12 +18,14 @@ void setEnginesSpeed(Engines, Sens, uint8_t);
 void goFront(uint8_t timp, uint8_t viteza){	
 	setEnginesSpeed(RightEngines, SensFata, viteza);
 	setEnginesSpeed(LeftEngines, SensFata, viteza);
+	removeEntryFromTimerQueue(&stopEngines);
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);	
     BTTransmitStr("Ma duc inainte!");
 }
 void goBack(uint8_t timp, uint8_t viteza){
 	setEnginesSpeed(RightEngines, SensSpate, viteza);
 	setEnginesSpeed(LeftEngines, SensSpate, viteza);
+	removeEntryFromTimerQueue(&stopEngines);
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
     BTTransmitStr("Ma duc inapoi!");
 }
@@ -32,6 +34,7 @@ void goFrontLeft(uint8_t timp, uint8_t viteza){
 	
 	setEnginesSpeed(RightEngines, SensFata, viteza);
 	setEnginesSpeed(LeftEngines, SensFata, 10);
+	removeEntryFromTimerQueue(&stopEngines);
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
     BTTransmitStr("Ma duc inainte stanga!");
 }
@@ -39,6 +42,7 @@ void goFrontRight(uint8_t timp, uint8_t viteza){
 	
 	setEnginesSpeed(RightEngines, SensFata, 10);
 	setEnginesSpeed(LeftEngines, SensFata, viteza);
+	removeEntryFromTimerQueue(&stopEngines);
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
     BTTransmitStr("Ma duc inainte dreapta!");
 }
@@ -47,6 +51,7 @@ void goBackLeft(uint8_t timp, uint8_t viteza){
 	
 	setEnginesSpeed(RightEngines, SensSpate, viteza);
 	setEnginesSpeed(LeftEngines, SensSpate, 10);
+	removeEntryFromTimerQueue(&stopEngines);
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
     BTTransmitStr("Ma duc inapoi stanga!");
 }
@@ -54,21 +59,23 @@ void goBackRight(uint8_t timp, uint8_t viteza){
 	
 	setEnginesSpeed(RightEngines, SensSpate, 10);
 	setEnginesSpeed(LeftEngines, SensSpate, viteza);
+	removeEntryFromTimerQueue(&stopEngines);
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
     BTTransmitStr("Ma duc inapoi dreapta!");
 }
-void rotirePeLoc(uint8_t timp, uint8_t engines){
+void rotirePeLoc(uint8_t timp, uint8_t viteza,  uint8_t engines){
 	
 	if(engines == RightEngines){
-		setEnginesSpeed(LeftEngines, SensSpate,  25);
-		setEnginesSpeed(RightEngines, SensFata, 25);
+		setEnginesSpeed(LeftEngines, SensFata, viteza);
+		setEnginesSpeed(RightEngines, SensSpate, viteza);
 		BTTransmitStr("ma rotesc spre dreapta");
 	}
 	else {
-		setEnginesSpeed(LeftEngines, SensFata, 25);
-		setEnginesSpeed(RightEngines, SensSpate, 25);
+		setEnginesSpeed(LeftEngines, SensSpate,  viteza);
+		setEnginesSpeed(RightEngines, SensFata, viteza);
 		BTTransmitStr("ma rotesc spre stanga");
 	}
+	removeEntryFromTimerQueue(&stopEngines);
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
 }
 

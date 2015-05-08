@@ -18,6 +18,6 @@ void initLeds(void);
 void sendTimeAsString(void);
 void fctSmechera(void);
 void doTimer(void);
-
+void functieRotireStanga(void);
 
 #endif /* UTILE_H_ */

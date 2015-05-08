@@ -116,6 +116,7 @@ void doTimer(){
 	else
 		if(sensorValue > 430 && sensorValue-430 > 15)
 			sensorValue-=15;
+
 	float diff = PID1cal(430, sensorValue);
 	int diffi8 = (int)(diff*100);
 	char str[25];
@@ -142,5 +143,51 @@ void doTimer(){
 			state = 2;
 	}
 		
+	
+}
+
+uint8_t stare = 100;
+extern volatile uint8_t debugging;
+void functieRotireStanga(void){
+	uint16_t sf = getValueOfSensor(0);
+	debugging = 0;
+	uint16_t sd = getValueOfSensor(1);
+	
+	char str[100];
+	sprintf(str, "sf=%d  sd=%d  stare=%d", sf, sd, stare);
+	BTTransmitStr(str);
+	
+	switch(stare){
+		case 100:
+			stare = 0;
+			goFront(60, 200);
+		break;
+		case 0: // merge in fata
+			if(sf > 300){
+				stare = 2;
+				//goFrontLeft(60, 250);
+				rotirePeLoc(60, 250, LeftEngines);
+			}
+			if(sd > 400){
+				stare = 1;
+				goFrontLeft(60, 200);
+			}		
+		break;
+		case 1:
+			if(sd < 300){
+				stare = 0;
+				goFront(60, 200);
+			}
+		
+		break;
+		case 2:
+			if(sf < 200){
+				goFront(60, 200);
+				stare = 0;
+			}
+		break;
+	}
+	
+	debugging = 1;
 	
 }

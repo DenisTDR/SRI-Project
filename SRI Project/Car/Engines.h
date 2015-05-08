@@ -23,7 +23,7 @@ void checkFreeParallelParkingPlace(void);
 void completeEnclosedContour(void);
 void initEngines(void);
 void stopEngines(void);
-void rotirePeLoc(uint8_t, uint8_t);
+void rotirePeLoc(uint8_t, uint8_t, uint8_t);
 void setEnginesSpeed(Engines, Sens, uint8_t);
 
 #endif /* ENGINES_H_ */
