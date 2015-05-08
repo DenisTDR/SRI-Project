@@ -61,8 +61,8 @@ int main(void)
 	
     while(1)
     {
-		//_delay_ms(1);
-		//checkTimeQueue();
+		_delay_ms(1);
+		checkTimeQueue();
 		//BTTransmitStr("-main loop-");
     }
 }
