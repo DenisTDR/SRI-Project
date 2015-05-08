@@ -7,7 +7,6 @@
 
 #define F_CPU 8000000UL // 8 MHz
 
-
 #include <stdio.h>
 #include <avr/io.h>
 #include "avr/interrupt.h"
