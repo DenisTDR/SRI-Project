@@ -6,7 +6,7 @@
  */ 
 
 #include <math.h>
-#define epsilon 20
+#define epsilon 0.1
 #define dt 0.01
 #define MAX 4
 #define MIN -4
