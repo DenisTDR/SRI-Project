@@ -59,7 +59,7 @@ int main(void)
 	BTTransmitStr("  >>>main start<<<  ");
 	
 	PORTD |= 1<<PIND5;
-	
+	//addEntryToTimerQueue(&parcare, (100UL * 1000UL), Periodic);
     while(1)
     {
 		//_delay_ms(1);
