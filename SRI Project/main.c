@@ -64,7 +64,7 @@ int main(void)
     {
 		//_delay_ms(1);
 		checkTimeQueue();
-		
+		//test de la mine
 		
 		//BTTransmitStr("-main loop-");
     }
