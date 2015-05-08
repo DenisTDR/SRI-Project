@@ -15,7 +15,8 @@
     <AssemblyName>SRI Project</AssemblyName>
     <Name>SRI Project</Name>
     <RootNamespace>SRI Project</RootNamespace>
-    <ToolchainFlavour>Native</ToolchainFlavour>
+    <ToolchainFlavour>
+    </ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <CacheFlash>true</CacheFlash>
@@ -38,6 +39,7 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
+    <AsfVersion>2.11.1</AsfVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
