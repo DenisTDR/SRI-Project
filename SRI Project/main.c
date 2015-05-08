@@ -19,6 +19,7 @@
 #include "Car/Sensors.h"
 #include "utile.h"
 
+
 volatile uint32_t time=0;
 void timer_init()
 {
@@ -61,8 +62,10 @@ int main(void)
 	
     while(1)
     {
-		_delay_ms(1);
+		//_delay_ms(1);
 		checkTimeQueue();
+		//test de la mine
+		
 		//BTTransmitStr("-main loop-");
     }
 }
