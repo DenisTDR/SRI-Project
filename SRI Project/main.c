@@ -34,8 +34,7 @@ ISR(TIMER1_OVF_vect)// Din datasheet timerq(are 8 mh) => 8/8= 1 microsecunde
 	//TCCR1B = 0x01; // init pentru 7.5 ms
 	//TCCR1B = 0x02; // init pentru 60 ms
 	//timePassed(7500); //7.5 ms = 7500 us;
-	timePassed(8800);
-	
+	timePassed(8800);	
 	//PORTD ^= 1<<PIND5;
 }
 
