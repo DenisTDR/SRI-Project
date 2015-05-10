@@ -6,7 +6,6 @@
  */ 
 #define F_CPU 8000000UL // 8 MHz
 
-
 #include <stdio.h>
 #include <avr/io.h>
 #include "avr/interrupt.h"
@@ -65,9 +64,11 @@ int main(void)
 	
     while(1)
     {
+		
 		//_delay_ms(1);
 		checkTimeQueue();
 		//test de la mine
+		//inca unul
 		
 		//BTTransmitStr("-main loop-");
     }
