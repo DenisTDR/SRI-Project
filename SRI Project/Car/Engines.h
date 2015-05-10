@@ -18,7 +18,6 @@ void goFrontRight(uint8_t, uint8_t);
 void goBackLeft(uint8_t, uint8_t);
 void goBackRight(uint8_t, uint8_t);
 void leftEngines(uint8_t, uint8_t);
-void rightEngines(uint8_t, uint8_t);
 void checkFreeParallelParkingPlace(void);
 void completeEnclosedContour(void);
 void initEngines(void);

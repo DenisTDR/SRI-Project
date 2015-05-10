@@ -58,9 +58,9 @@ int main(void)
 	sei();
 	BTTransmitStr("  >>>main start<<<  ");
 	
-	PORTD |= 1<<PIND5;
+	PORTD |= 1<<PIND6;
 	
-	addEntryToTimerQueue(&functieRotireStanga, 1000UL * 50UL, Periodic);
+	//addEntryToTimerQueue(&functieRotireStanga, 1000UL * 50UL, Periodic);
 	
     while(1)
     {

@@ -43,6 +43,7 @@ void resetBTProtocol(){
 }
 
 extern volatile uint8_t debugging;
+extern volatile uint8_t iesire;
 void BTProtocolReadByte(unsigned char theByte){
 	cli();
 	switch (state){
@@ -177,8 +178,12 @@ void prelucreazaDatele(void){
 			addEntryToTimerQueue(&fctSmechera, 10UL * 1000UL, Periodic);
 		break;
 		case GoM2P1:
-			addEntryToTimerQueue(&doTimer, 1000UL * 1000UL, Periodic);
-			BTTransmitStr("doTimer started");
+			addEntryToTimerQueue(&functieRotireStanga, 1000UL * 500UL, Periodic);
+			iesire=date[0];
+		break;
+		case ResetThings:
+			stopEngines();
+			resetTimerQueue();
 		break;
 		default:
 		break;

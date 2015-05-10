@@ -68,4 +68,16 @@ typedef enum{
 	SensSpate
 }Sens;
 
+typedef enum{
+	Start,
+	intrareInParcare,
+	rotireLoc,
+	rotireMersDR,
+	rotireMersSt,
+	mersFata,
+	poarta,
+	bv,
+	nuPoarta
+}test1;
+
 #endif

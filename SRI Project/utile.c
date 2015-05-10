@@ -146,44 +146,90 @@ void doTimer(){
 	
 }
 
-uint8_t stare = 100;
+uint8_t stare = Start;
+volatile uint8_t iesire=0;
 extern volatile uint8_t debugging;
 void functieRotireStanga(void){
-	uint16_t sf = getValueOfSensor(0);
+	uint16_t senzorFata = getValueOfSensor(0);
 	debugging = 0;
-	uint16_t sd = getValueOfSensor(1);
+	uint16_t senzorDreapta = getValueOfSensor(1);
 	
 	char str[100];
-	sprintf(str, "sf=%d  sd=%d  stare=%d", sf, sd, stare);
+	sprintf(str, "senzorFata=%d  senzorDreapta=%d  stare=%d", senzorFata, senzorDreapta, stare);
 	BTTransmitStr(str);
 	
 	switch(stare){
-		case 100:
-			stare = 0;
-			goFront(60, 200);
+		case intrareInParcare:
+			if(senzorFata>300){
+				rotirePeLoc(60, 250, RightEngines);
+				stare=rotireLoc;
+			}
 		break;
-		case 0: // merge in fata
-			if(sf > 300){
-				stare = 2;
+		case Start:
+			goFront(60, 200);
+			stare = intrareInParcare;
+			BTTransmitStr("Sa incepem :D");
+			
+		break;
+		case mersFata: // merge in fata
+			if(senzorFata > 300){
+				stare = rotireLoc;
 				//goFrontLeft(60, 250);
 				rotirePeLoc(60, 250, LeftEngines);
 			}
-			if(sd > 400){
-				stare = 1;
+			if(senzorDreapta<160){
+				iesire--;
+				if(iesire==0){
+					rotirePeLoc(60,250, RightEngines);
+					stare= poarta;}
+				else stare=nuPoarta;
+				
+			}
+			if(senzorDreapta > 400){
+				stare = rotireMersSt;
 				goFrontLeft(60, 200);
 			}		
+			if(senzorDreapta<200 && senzorDreapta>170){
+				stare= rotireMersDR;
+				goFrontRight(60, 200);
+			}
+					
 		break;
-		case 1:
-			if(sd < 300){
-				stare = 0;
+		case poarta:
+			if(senzorFata <180){
+				goFront(60,200);
+				stare=bv;
+			}
+		break;	
+		case bv:
+			{
+				stopEngines();
+				removeEntryFromTimerQueue(&functieRotireStanga);
+			}
+		break;		
+		case rotireMersSt:
+			if(senzorDreapta < 300){
+				stare = mersFata;
+				goFront(60, 200);
+			}		
+		break;
+		case rotireMersDR:
+			if(senzorDreapta >300){
+				stare =mersFata;
 				goFront(60, 200);
 			}
-		
 		break;
-		case 2:
-			if(sf < 200){
+		case rotireLoc:
+			if(senzorFata < 180){
 				goFront(60, 200);
-				stare = 0;
+				stare=mersFata;
+				
+			}
+		break;
+		case nuPoarta:
+			if(senzorDreapta>200){
+				stare=mersFata;
+				goFront(60,200);
 			}
 		break;
 	}

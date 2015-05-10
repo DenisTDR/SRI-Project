@@ -132,6 +132,7 @@ void initEngines()
 			PORTC |= 1<<PINC0;	*/
 }
 
+
 void setEnginesSpeed(Engines engine, Sens sens, uint8_t viteza)
 {
 	if(sens == SensFata)
