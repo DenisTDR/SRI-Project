@@ -52,10 +52,10 @@ typedef enum{
 } BTState;
 
 typedef enum{
-	FrontLeftSensor, // cel care e indreptat inspre stanga
-	FrontRightSensor, // cel care e indreptat inspre dreapta
-	SideLeftSensor,
-	SideRightSensor
+	FrontLeftSensor, // cel care e indreptat inspre stanga   0
+	FrontRightSensor, // cel care e indreptat inspre dreapta	1
+	SideLeftSensor,	//2
+	SideRightSensor	//3
 }Sensor;
 
 typedef enum{
@@ -68,16 +68,5 @@ typedef enum{
 	SensSpate
 }Sens;
 
-typedef enum{
-	Start,
-	intrareInParcare,
-	rotireLoc,
-	rotireMersDR,
-	rotireMersSt,
-	mersFata,
-	poarta,
-	bv,
-	nuPoarta
-}test1;
 
 #endif

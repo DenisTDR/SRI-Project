@@ -14,6 +14,8 @@ void ledAction(char);
 void blinkLedD6(void);
 void ReadSensor0(void);
 void ReadSensor1(void);
+void ReadSensor2(void);
+void ReadSensor3(void);
 void initLeds(void);
 void sendTimeAsString(void);
 void fctSmechera(void);

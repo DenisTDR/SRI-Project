@@ -17,8 +17,8 @@
 
 volatile uint8_t e_stins = 0;
 void blinkLedD6_v1(){
-	if(!e_stins)
-		PORTD ^= 1<<PIND6;
+	//if(!e_stins)
+	//	PORTD ^=( 1<<PIND2);
 }
 void blinkLedD6_v2(){
 	e_stins = !e_stins;
@@ -34,18 +34,19 @@ void ledAction(char act){
 	switch(act){
 		case 0:
 			removeEntryFromTimerQueue(&blinkLedD6_v1);
-			PORTD &=~ (1<<PIND6);
+			//PORTD &=~ (1<<PIND2);
 			//shouldBlink = 0;
 			BTTransmitStr("ledul a fost stins.");
 			break;
 		case 1:
 			removeEntryFromTimerQueue(&blinkLedD6_v1);
-			PORTD |= 1<<PIND6;
+			//PORTD |= 1<<PIND2;
 			//shouldBlink = 0;
 			BTTransmitStr("ledul a fost aprins.");
 			break;
 		
 		case 2:
+			e_stins = 0;
 			addEntryToTimerQueue(&blinkLedD6_v1, (1000UL * 1000UL), Periodic);
 			BTTransmitStr("ledul va 'blincari'.");
 			break;
@@ -53,23 +54,37 @@ void ledAction(char act){
 }
 
 void initLeds(){	
-	DDRD |=1<<PIND6;
-	DDRD |=1<<PIND5;
+	//DDRD |=1<<PIND6;
+	//DDRD |=1<<PIND5;
 }
 extern uint32_t time;
 
 void ReadSensor0(){
 	char msg[70];
 	//resetSensorQueue(0);
-	uint16_t x = getValueOfSensor(0);
+	uint16_t x = getValueOfSensor(FrontLeftSensor);
 	sprintf(msg, "sensor #0: %d", x);	
 	BTTransmitStr(msg);
 }
 void ReadSensor1(){
 	char msg[70];
 	//resetSensorQueue(1);
-	uint16_t x = getValueOfSensor(1);
+	uint16_t x = getValueOfSensor(FrontRightSensor);
 	sprintf(msg, "sensor #1: %d", x);
+	BTTransmitStr(msg);
+}
+void ReadSensor2(){
+	char msg[70];
+	//resetSensorQueue(1);
+	uint16_t x = getValueOfSensor(SideLeftSensor);
+	sprintf(msg, "sensor #2: %d", x);
+	BTTransmitStr(msg);
+}
+void ReadSensor3(){
+	char msg[70];
+	//resetSensorQueue(1);
+	uint16_t x = getValueOfSensor(SideRightSensor);
+	sprintf(msg, "sensor #3: %d", x);
 	BTTransmitStr(msg);
 }
 void sendTimeAsString(){
@@ -143,97 +158,5 @@ void doTimer(){
 			state = 2;
 	}
 		
-	
-}
-
-uint8_t stare = Start;
-volatile uint8_t iesire=0;
-extern volatile uint8_t debugging;
-void functieRotireStanga(void){
-	uint16_t senzorFata = getValueOfSensor(0);
-	debugging = 0;
-	uint16_t senzorDreapta = getValueOfSensor(1);
-	
-	char str[100];
-	sprintf(str, "senzorFata=%d  senzorDreapta=%d  stare=%d", senzorFata, senzorDreapta, stare);
-	BTTransmitStr(str);
-	
-	switch(stare){
-		case intrareInParcare:
-			if(senzorFata>300){
-				rotirePeLoc(60, 250, RightEngines);
-				stare=rotireLoc;
-			}
-		break;
-		case Start:
-			goFront(60, 200);
-			stare = intrareInParcare;
-			BTTransmitStr("Sa incepem :D");
-			
-		break;
-		case mersFata: // merge in fata
-			if(senzorFata > 300){
-				stare = rotireLoc;
-				//goFrontLeft(60, 250);
-				rotirePeLoc(60, 250, LeftEngines);
-			}
-			if(senzorDreapta<160){
-				iesire--;
-				if(iesire==0){
-					rotirePeLoc(60,250, RightEngines);
-					stare= poarta;}
-				else stare=nuPoarta;
-				
-			}
-			if(senzorDreapta > 400){
-				stare = rotireMersSt;
-				goFrontLeft(60, 200);
-			}		
-			if(senzorDreapta<200 && senzorDreapta>170){
-				stare= rotireMersDR;
-				goFrontRight(60, 200);
-			}
-					
-		break;
-		case poarta:
-			if(senzorFata <180){
-				goFront(60,200);
-				stare=bv;
-			}
-		break;	
-		case bv:
-			{
-				stopEngines();
-				removeEntryFromTimerQueue(&functieRotireStanga);
-			}
-		break;		
-		case rotireMersSt:
-			if(senzorDreapta < 300){
-				stare = mersFata;
-				goFront(60, 200);
-			}		
-		break;
-		case rotireMersDR:
-			if(senzorDreapta >300){
-				stare =mersFata;
-				goFront(60, 200);
-			}
-		break;
-		case rotireLoc:
-			if(senzorFata < 180){
-				goFront(60, 200);
-				stare=mersFata;
-				
-			}
-		break;
-		case nuPoarta:
-			if(senzorDreapta>200){
-				stare=mersFata;
-				goFront(60,200);
-			}
-		break;
-	}
-	
-	debugging = 1;
 	
 }

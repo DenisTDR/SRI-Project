@@ -20,6 +20,8 @@
 #include "../Car/Engines.h"
 #include "../utile.h"
 #include "../Timing/Timing.h"
+#include "../Car/Sensors.h"
+#include "../functiiParcare.h"
 
 void prelucreazaDatele(void);
 
@@ -141,29 +143,7 @@ void prelucreazaDatele(void){
 			ledAction(date[0]);
 		break;
 		case ReadSensorValue:
-		{
-			if(date[1] == 1){
-				if(date[0] == 0){
-					if((char)existsEntryInTimerQueue(&ReadSensor0))
-						removeEntryFromTimerQueue(&ReadSensor0);
-					else
-						addEntryToTimerQueue(&ReadSensor0, 1000UL * 1000UL, Periodic);
-					
-				}
-				else if(date[0] == 1){
-					if((char)existsEntryInTimerQueue(&ReadSensor1))
-						removeEntryFromTimerQueue(&ReadSensor1);
-					else
-						addEntryToTimerQueue(&ReadSensor1, 1000UL * 1000UL, Periodic);
-				}
-			}
-			else
-				if(date[0] == 0)
-					ReadSensor0();
-				else if(date[0] == 1)
-					ReadSensor1();
-			
-		}
+			toggleSensorRead(date[0]);		
 		break;
 		case StopEngines:
 			stopEngines();
@@ -175,7 +155,8 @@ void prelucreazaDatele(void){
 			rotirePeLoc(date[0], date[1], LeftEngines);
 		break;
 		case DisplayMessage:
-			addEntryToTimerQueue(&fctSmechera, 10UL * 1000UL, Periodic);
+			//addEntryToTimerQueue(&fctSmechera, 10UL * 1000UL, Periodic);
+			addEntryToTimerQueue(&testFct1, 500UL * 1000UL, Periodic);
 		break;
 		case GoM2P1:
 			addEntryToTimerQueue(&functieRotireStanga, 1000UL * 500UL, Periodic);
@@ -226,12 +207,12 @@ void BTTransmitChar(unsigned char theChar){
 void BTInit()
 {
 	/*Pentru Receive*/
-	UBRR0L = 51; //baud rate 9600 bps
+	UBRR0L = 25; //baud rate 9600 bps
 	UCSR0B |= _BV(RXCIE0);
 	UCSR0B |= _BV(RXEN0);
 	UCSR0B |= _BV(TXEN0);
 	//UCSR0B |= (_BV(TXEN0))|(_BV(RXCIE0))|(_BV(RXCIE0));//activare receive,transmit si receive interrupt
 	//UCSR0C |=(1<<UPM01)|(1<<UPM00);
 	
-	state=WaitingStartByte;
+	state = WaitingStartByte;
 }

@@ -87,6 +87,7 @@ uint8_t existsEntryInTimerQueue(void (*_theFct) (void)){
 	uint8_t i;
 	for(i=0; i<TimerQueueSize; i++){
 		if(TimerQueue[i].pointerFct == _theFct){
+			
 			return 1;
 		}
 	}

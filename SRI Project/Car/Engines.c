@@ -66,13 +66,13 @@ void goBackRight(uint8_t timp, uint8_t viteza){
 void rotirePeLoc(uint8_t timp, uint8_t viteza,  uint8_t engines){
 	
 	if(engines == RightEngines){
-		setEnginesSpeed(LeftEngines, SensFata, viteza);
-		setEnginesSpeed(RightEngines, SensSpate, viteza);
+		setEnginesSpeed(LeftEngines, SensSpate,  viteza);
+		setEnginesSpeed(RightEngines, SensFata, viteza);
 		BTTransmitStr("ma rotesc spre dreapta");
 	}
 	else {
-		setEnginesSpeed(LeftEngines, SensSpate,  viteza);
-		setEnginesSpeed(RightEngines, SensFata, viteza);
+		setEnginesSpeed(LeftEngines, SensFata, viteza);
+		setEnginesSpeed(RightEngines, SensSpate, viteza);
 		BTTransmitStr("ma rotesc spre stanga");
 	}
 	removeEntryFromTimerQueue(&stopEngines);
@@ -83,11 +83,13 @@ extern volatile uint32_t time;
 void stopEngines(){
     BTTransmitStr("M-am oprit!");
 	
-	PORTC &=~ 1<<PINC1;
-	PORTC &=~ 1<<PINC0;	
+	OCR0A = 0;
+	OCR2A = 0;
 	
-	OCR0A = 255;
-	OCR2A = 255;
+	PORTD &= ~ 1<<PIND2;
+	PORTD &= ~ 1<<PIND4;
+	PORTD &= ~ 1<<PIND3;
+	PORTD &= ~ 1<<PIND5;
 	//setEnginesSpeed(RightEngines, 1, 0);
 	//setEnginesSpeed(LeftEngines, 1, 0);
 }
@@ -105,56 +107,86 @@ void completeEnclosedContour(){
 void initEngines()
 {
 	
-	OCR0A = 255;
-	OCR2A = 255;
+	OCR0A = 0;
+	OCR2A = 0;
 	
-	PINB|=(1<<PB3);
+	//PINB|=(1<<PB3);
+	
+	
+	DDRB |=1<<PINB3;
 	TCCR0A |=3;
 	TCCR0A |= (1 << COM0A0);
 	TCCR0A |= (1 << COM0A1);
 	TCCR0B |= (1 << CS00);
-	DDRB |=1<<PINB3;
 	// motor 2
+	
 	DDRD |= (1 << PD7);
 	TCCR2A|=3;
 	TCCR2A |= (1 << COM2A0);
 	TCCR2A |= (1 << COM2A1);
 	TCCR2B |= (1 << CS20);
 	//sens
-	DDRC |= 1<<PINC0;
-	DDRC |= 1<<PINC1;
+	//DDRC |= 1<<PINC0;
+	//DDRC |= 1<<PINC1;
 	
 	
-	PORTC &=~ 1<<PINC1;
-	PORTC &=~ 1<<PINC0;	
+	//PORTC &=~ 1<<PINC1;
+	//PORTC &=~ 1<<PINC0;	
 	
 		/*	PORTC |= 1<<PINC1;	
 			PORTC |= 1<<PINC0;	*/
+		
+	//enable standby
+	DDRB |= 1<<PINB5;
+	PORTB |= 1<<PINB5;	
+	DDRB |= 1<<PINB4;
+	PORTB |= 1<<PINB4;
+	
+	
+	//in1 & in2 4 left engines
+	DDRD |= 1<<PIND3;
+	DDRD |= 1<<PIND5;
+	PORTD &= ~ 1<<PIND3;
+	PORTD &= ~ 1<<PIND5;
+	
+	//in1 & in2 4 left engines
+	DDRD |= 1<<PIND2;
+	DDRD |= 1<<PIND4;
+	PORTD &= ~ 1<<PIND2;
+	PORTD &= ~ 1<<PIND4;
+	
 }
 
 
 void setEnginesSpeed(Engines engine, Sens sens, uint8_t viteza)
 {
-	if(sens == SensFata)
-		viteza = 255 - viteza;
+	//PD2 (sens driver dreapta)
+	//PD3 (sens driver stanga)
+	
+	//if(sens == SensFata)
+	viteza = 255 - viteza;
 		
 	if(engine==RightEngines){
-		OCR2A = viteza;
-		if(sens == SensFata){	
-			PORTC &=~ 1<<PINC0;
+		if(sens != SensFata){
+			PORTD &= ~ (1<<PIND2);
+			PORTD |=  1<<PIND4;
 		}			
 		else{
-			PORTC |= 1<<PINC0;	
-		}			
+			PORTD |=  1<<PIND2;
+			PORTD &= ~( 1<<PIND4);
+		}
+		OCR2A = viteza;	
 	}
 	else
 	{
-		OCR0A = viteza;
-		if(sens == SensFata){	
-			PORTC &=~ 1<<PINC1;
+		if(sens != SensFata){	
+			PORTD |=  1<<PIND3;
+			PORTD &= ~ (1<<PIND5);
 		}			
 		else{			
-			PORTC |= 1<<PINC1;			
-		}			
+			PORTD &= ~ (1<<PIND3);
+			PORTD |=  1<<PIND5;		
+		}
+		OCR0A = viteza;
 	}		
 }	
