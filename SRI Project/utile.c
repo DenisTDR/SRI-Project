@@ -127,10 +127,10 @@ volatile uint8_t state=-1;
 void doTimer(){
 	uint16_t sensorValue = getValueOfSensor(1);
 	if(sensorValue < 430 && 430 - sensorValue >15)
-		sensorValue +=15;
+		sensorValue += 15;
 	else
 		if(sensorValue > 430 && sensorValue-430 > 15)
-			sensorValue-=15;
+			sensorValue -= 15;
 
 	float diff = PID1cal(430, sensorValue);
 	int diffi8 = (int)(diff*100);
@@ -157,6 +157,11 @@ void doTimer(){
 			BTTransmitStr("left"),
 			state = 2;
 	}
-		
-	
+}
+
+extern volatile uint32_t encoder1CNT, encoder2CNT;
+void sendEncoderCounter(){
+	char str[35];
+	sprintf(str, "enc CNT: 1:%lu  2:%lu", encoder1CNT, encoder2CNT);
+	BTTransmitStr(str);	
 }

@@ -94,6 +94,11 @@ uint8_t existsEntryInTimerQueue(void (*_theFct) (void)){
 	return 0;
 }
 
+void addEntryIfNotExists(void (*_theFct) (void), uint32_t _delay, uint8_t _repeat){
+	if(!existsEntryInTimerQueue(_theFct)){
+		addEntryToTimerQueue(_theFct, _delay, _repeat);
+	}	
+}
 //se apeleaza din intrerupere (cate microsecunde au trecut)
 //pentru fiecare functie(valida) din queue se scade din delay numarul de microsecunde care a trecut
 

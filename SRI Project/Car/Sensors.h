@@ -24,5 +24,6 @@ uint32_t getValueOfSensor2(Sensor sensor, uint8_t debug);
 
 void readSensorsAndSend();
 void toggleSensorRead(Sensor sensor);
+void toggleSensorSend(Sensor sensor);
 
 #endif /* SENSORS_H_ */

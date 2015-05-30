@@ -143,7 +143,7 @@ void prelucreazaDatele(void){
 			ledAction(date[0]);
 		break;
 		case ReadSensorValue:
-			toggleSensorRead(date[0]);		
+			toggleSensorSend(date[0]);		
 		break;
 		case StopEngines:
 			stopEngines();
@@ -156,7 +156,8 @@ void prelucreazaDatele(void){
 		break;
 		case DisplayMessage:
 			//addEntryToTimerQueue(&fctSmechera, 10UL * 1000UL, Periodic);
-			addEntryToTimerQueue(&testFct1, 500UL * 1000UL, Periodic);
+			//addEntryToTimerQueue(&testFct1, 500UL * 1000UL, Periodic);
+			addEntryToTimerQueue(&sendEncoderCounter, 500UL * 1000UL, Once);
 		break;
 		case GoM2P1:
 			addEntryToTimerQueue(&functieRotireStanga, 1000UL * 500UL, Periodic);
@@ -165,6 +166,9 @@ void prelucreazaDatele(void){
 		case ResetThings:
 			stopEngines();
 			resetTimerQueue();
+		break;
+		case GetAverageSpeed:
+			getAverageSpeed(date[0]);
 		break;
 		default:
 		break;
@@ -211,8 +215,6 @@ void BTInit()
 	UCSR0B |= _BV(RXCIE0);
 	UCSR0B |= _BV(RXEN0);
 	UCSR0B |= _BV(TXEN0);
-	//UCSR0B |= (_BV(TXEN0))|(_BV(RXCIE0))|(_BV(RXCIE0));//activare receive,transmit si receive interrupt
-	//UCSR0C |=(1<<UPM01)|(1<<UPM00);
-	
+		
 	state = WaitingStartByte;
 }

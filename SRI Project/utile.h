@@ -21,5 +21,6 @@ void sendTimeAsString(void);
 void fctSmechera(void);
 void doTimer(void);
 void functieRotireStanga(void);
+void sendEncoderCounter(void);
 
 #endif /* UTILE_H_ */

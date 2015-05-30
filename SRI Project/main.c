@@ -33,9 +33,7 @@ ISR(TIMER1_OVF_vect)// Din datasheet timerq(are 8 mh) => 8/8= 1 microsecunde
 	//TCCR1B = 0x01; // init pentru 7.5 ms
 	//TCCR1B = 0x02; // init pentru 60 ms
 	//timePassed(7500); //7.5 ms = 7500 us;
-	timePassed(8800);	
-	//PORTD ^= 1<<PIND5;
-	//PORTD ^=( 1<<PIND2);
+	timePassed(8800);
 }
 
 ISR(USART0_RX_vect)
@@ -44,35 +42,48 @@ ISR(USART0_RX_vect)
 	//PORTD ^=( 1<<PIND2);
 	//UDR0 = 66;
 }
+extern volatile uint32_t encoder1CNT, encoder2CNT;
+ISR(PCINT1_vect)
+{
+	//if(PORTB &( 1<<PINB0))
+	encoder1CNT++;
+	//if(PORTB &( 1<<PINB7))
+	//	encoder2CNT++;
+}
 
 volatile uint8_t sradc0, shouldBlink=0;
 
 int main(void)
 {
+	sei();
 	BTInit();
 	timer_init();
 	initLeds();
 	initEngines();
-	initSensors();
 	initTimeQueue();
+	initSensors();
 	
-	sei();
+	//PCMSK1 |= PCINT8;
+	PCMSK1 |= PCINT15;
+	//DDRB &= ~(1 << PINB0);
+	DDRB &= ~(1 << PINB7);    
+	PCICR |= (1<<PCIE1);
+	
+	addEntryToTimerQueue(&resetEncoders, 500UL*1000UL, Once);
+	
+	encoder1CNT=0;
+	encoder2CNT=0;
+	
 	BTTransmitStr("  >>>main start<<<  ");
 	
-	//goFront(200, 200);
-
-	
-	//PORTD |=  1<<PIND3;
-	//addEntryToTimerQueue(&functieRotireStanga, 1000UL * 50UL, Periodic);
+	char strBuffer[100];
+	sprintf(strBuffer, "ic %lu", encoder1CNT);
+	BTTransmitStr(strBuffer);
 	
     while(1)
     {
 		
-		//_delay_ms(1);
 		checkTimeQueue();
-		//test de la mine
-		//inca unul
-		
 		//BTTransmitStr("-main loop-");
     }
 }

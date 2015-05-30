@@ -14,6 +14,7 @@
 #include "../Timing/Timing.h"
 
 void setEnginesSpeed(Engines, Sens, uint8_t);
+void countSeconds();
 
 void goFront(uint8_t timp, uint8_t viteza){	
 	setEnginesSpeed(RightEngines, SensFata, viteza);
@@ -79,10 +80,8 @@ void rotirePeLoc(uint8_t timp, uint8_t viteza,  uint8_t engines){
 	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
 }
 
-extern volatile uint32_t time;
+
 void stopEngines(){
-    BTTransmitStr("M-am oprit!");
-	
 	OCR0A = 0;
 	OCR2A = 0;
 	
@@ -90,6 +89,11 @@ void stopEngines(){
 	PORTD &= ~ 1<<PIND4;
 	PORTD &= ~ 1<<PIND3;
 	PORTD &= ~ 1<<PIND5;
+	
+	removeEntryFromTimerQueue(&countSeconds);
+		
+    BTTransmitStr("M-am oprit!");
+	
 	//setEnginesSpeed(RightEngines, 1, 0);
 	//setEnginesSpeed(LeftEngines, 1, 0);
 }
@@ -98,10 +102,9 @@ void checkFreeParallelParkingPlace(){
     BTTransmitStr("Start Free P P P!");
 }
 void completeEnclosedContour(){
-	
-	
     BTTransmitStr("Start complete enclosed contour!");
 }
+
 
 
 void initEngines()
@@ -164,6 +167,7 @@ void setEnginesSpeed(Engines engine, Sens sens, uint8_t viteza)
 	//PD3 (sens driver stanga)
 	
 	//if(sens == SensFata)
+	addEntryIfNotExists(&countSeconds, 1000UL*1000UL, Periodic);
 	viteza = 255 - viteza;
 		
 	if(engine==RightEngines){
@@ -189,4 +193,23 @@ void setEnginesSpeed(Engines engine, Sens sens, uint8_t viteza)
 		}
 		OCR0A = viteza;
 	}		
-}	
+}
+
+volatile uint32_t encoder1CNT, encoder2CNT;
+volatile uint32_t secondsPassed = 0;
+void getAverageSpeed(uint8_t reset){
+	if(reset){
+		encoder2CNT = encoder1CNT = 0;
+		secondsPassed = 0;
+		return;
+	}
+	char strBuffer[100];
+	sprintf(strBuffer, "ic %lu, timep %lu", encoder1CNT, secondsPassed);
+	BTTransmitStr(strBuffer);
+}
+void countSeconds(){
+	secondsPassed ++;
+}
+void resetEncoders(){
+	encoder2CNT = encoder1CNT = 0;
+}

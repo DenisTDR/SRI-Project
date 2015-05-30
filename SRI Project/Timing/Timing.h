@@ -14,6 +14,7 @@
 void addEntryToTimerQueue(void (*) (void), uint32_t, uint8_t);
 void removeEntryFromTimerQueue(void (*) (void));
 int existsEntryInTimerQueue(void (*) (void));
+void addEntryIfNotExists(void (*) (void), uint32_t, uint8_t);
 void timePassed(uint32_t);
 void checkTimeQueue(void);
 void initTimeQueue(void);
