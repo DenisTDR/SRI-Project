@@ -9,7 +9,7 @@
 #ifndef BTPROTOCOL_H_
 #define BTPROTOCOL_H_
 
-void BTInit(void);
+void initBTProtocol(void);
 
 void BTProtocolReadByte(unsigned char);
 void BTTransmitChar(unsigned char);

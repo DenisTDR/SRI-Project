@@ -6,4 +6,25 @@
  */ 
 #include <avr/io.h>
 
-volatile uint8_t debugging = 1;
+#define DEBUGGING (debugging & 1)
+#define LAST_DEBUGGING (debugging & 2)
+
+
+volatile uint8_t debugging = 0;
+
+void turnDebuggingOff(){
+	debugging = 0;
+}
+
+void turnDebuggingOn(){
+	debugging = 1;
+}
+
+void toggleDebuggingOff(){
+	if(DEBUGGING){
+		debugging = 2;
+	}
+	else
+		if(LAST_DEBUGGING)
+			debugging = 1;
+}

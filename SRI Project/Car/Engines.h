@@ -24,5 +24,7 @@ void initEngines(void);
 void stopEngines(void);
 void rotirePeLoc(uint8_t, uint8_t, uint8_t);
 void setEnginesSpeed(Engines, Sens, uint8_t);
+void getAverageSpeed(uint8_t);
+void resetEncoders();
 
 #endif /* ENGINES_H_ */

@@ -39,8 +39,9 @@ typedef enum{
 		StopEngines,      // 23
 		RotirePeLocStanga, // 24
 		RotirePeLocDreapta, // 25
-		ResetThings,		//26
-        EndAction         // 27
+		GetAverageSpeed,    //26
+		ResetThings,		//27
+        EndAction         // 28
 } CarAction;
 
 typedef enum{
@@ -52,10 +53,10 @@ typedef enum{
 } BTState;
 
 typedef enum{
-	FrontLeftSensor, // cel care e indreptat inspre stanga
-	FrontRightSensor, // cel care e indreptat inspre dreapta
-	SideLeftSensor,
-	SideRightSensor
+	SideLeftSensor,	//0
+	SideRightSensor,	//1
+	FrontRightSensor, // cel care e indreptat inspre dreapta	2
+	FrontLeftSensor // cel care e indreptat inspre stanga  3
 }Sensor;
 
 typedef enum{
@@ -68,16 +69,5 @@ typedef enum{
 	SensSpate
 }Sens;
 
-typedef enum{
-	Start,
-	intrareInParcare,
-	rotireLoc,
-	rotireMersDR,
-	rotireMersSt,
-	mersFata,
-	poarta,
-	bv,
-	nuPoarta
-}test1;
 
 #endif

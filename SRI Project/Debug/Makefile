@@ -43,9 +43,11 @@ SUBDIRS :=  \
 C_SRCS +=  \
 ../BTProtocol/BTProtocol.c \
 ../BTProtocol/Serializer.c \
+../Car/Encoders.c \
 ../Car/Engines.c \
 ../Car/Sensors.c \
 ../Constants.c \
+../functiiParcare.c \
 ../main.c \
 ../PID/PID1.c \
 ../Settings.c \
@@ -62,9 +64,11 @@ ASM_SRCS +=
 OBJS +=  \
 BTProtocol/BTProtocol.o \
 BTProtocol/Serializer.o \
+Car/Encoders.o \
 Car/Engines.o \
 Car/Sensors.o \
 Constants.o \
+functiiParcare.o \
 main.o \
 PID/PID1.o \
 Settings.o \
@@ -74,9 +78,11 @@ utile.o
 OBJS_AS_ARGS +=  \
 BTProtocol/BTProtocol.o \
 BTProtocol/Serializer.o \
+Car/Encoders.o \
 Car/Engines.o \
 Car/Sensors.o \
 Constants.o \
+functiiParcare.o \
 main.o \
 PID/PID1.o \
 Settings.o \
@@ -86,9 +92,11 @@ utile.o
 C_DEPS +=  \
 BTProtocol/BTProtocol.d \
 BTProtocol/Serializer.d \
+Car/Encoders.d \
 Car/Engines.d \
 Car/Sensors.d \
 Constants.d \
+functiiParcare.d \
 main.d \
 PID/PID1.d \
 Settings.d \
@@ -98,9 +106,11 @@ utile.d
 C_DEPS_AS_ARGS +=  \
 BTProtocol/BTProtocol.d \
 BTProtocol/Serializer.d \
+Car/Encoders.d \
 Car/Engines.d \
 Car/Sensors.d \
 Constants.d \
+functiiParcare.d \
 main.d \
 PID/PID1.d \
 Settings.d \
@@ -135,6 +145,13 @@ BTProtocol/Serializer.o: ../BTProtocol/Serializer.c
 	@echo Finished building: $<
 	
 
+Car/Encoders.o: ../Car/Encoders.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 4.8.1
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1061\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega644a -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
 Car/Engines.o: ../Car/Engines.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.8.1
@@ -150,6 +167,13 @@ Car/Sensors.o: ../Car/Sensors.c
 	
 
 ./Constants.o: .././Constants.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 4.8.1
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1061\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega644a -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+./functiiParcare.o: .././functiiParcare.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.8.1
 	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1061\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega644a -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
