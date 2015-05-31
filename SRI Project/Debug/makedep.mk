@@ -6,6 +6,8 @@ BTProtocol\BTProtocol.c
 
 BTProtocol\Serializer.c
 
+Car\Encoders.c
+
 Car\Engines.c
 
 Car\Sensors.c

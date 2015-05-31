@@ -109,6 +109,12 @@
     <Compile Include="BTProtocol\Serializer.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Car\Encoders.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Car\Encoders.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Car\Engines.c">
       <SubType>compile</SubType>
     </Compile>
@@ -140,6 +146,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Settings.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Settings.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Timing\Timing.c">

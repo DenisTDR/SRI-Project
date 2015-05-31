@@ -22,8 +22,16 @@
 #include "../Timing/Timing.h"
 #include "../Car/Sensors.h"
 #include "../functiiParcare.h"
+#include "../Settings.h"
 
 void prelucreazaDatele(void);
+void BTProtocolReadByte(unsigned char theByte);
+
+ISR(USART0_RX_vect)
+{
+	BTProtocolReadByte(UDR0);
+}
+
 
 void reTransmit(void){
 	//trimite un semnal telefonului pentru a retransmite ultimul mesaj
@@ -31,7 +39,6 @@ void reTransmit(void){
 	char msg[] = { StartByte, ReTransmitLastMsg, 0, 0x55 };
 	BTTransmitMsg(msg, 4);
 }
-
 
 
 BTState state;
@@ -44,7 +51,6 @@ void resetBTProtocol(){
 	state = WaitingStartByte;
 }
 
-extern volatile uint8_t debugging;
 extern volatile uint8_t iesire;
 void BTProtocolReadByte(unsigned char theByte){
 	cli();
@@ -52,9 +58,7 @@ void BTProtocolReadByte(unsigned char theByte){
 		case WaitingStartByte:
 			if(theByte == StartByte){
 				state = WaitingCarAction;
-				debugging = 0;
 				//addEntryToTimerQueue(&resetBTProtocol, 1000UL * 1000UL * 1000UL, Once);
-				debugging = 1;
 			}
 			break;
 
@@ -77,7 +81,7 @@ void BTProtocolReadByte(unsigned char theByte){
 			len = theByte;
 			dateCrtIndex = 0;
 			if(len<=0 || len>50)
-			state=WaitingStartByte;
+				state=WaitingStartByte;
 			break;
 
 		case ReadingData:
@@ -102,11 +106,14 @@ void BTProtocolReadByte(unsigned char theByte){
 extern volatile uint8_t ms2p1_enabled;
 
 void prelucreazaDatele(void){
+	
 	//BTTransmitStr("Procesez ceva!");
 	//cli();
 	if(actiune >= GoFront && actiune <= GoRightB){
 		unsigned char timp = date[0];
 		unsigned char viteza = date[1];
+		if(dateCrtIndex == 3)
+			toggleDebuggingOff();
 		switch(actiune){
 			case GoFront:
 			goFront(timp, viteza);
@@ -129,6 +136,9 @@ void prelucreazaDatele(void){
 			default:
 				break;
 		}
+		if(dateCrtIndex == 3)
+			toggleDebuggingOff();
+			
 		return;
 	}
 	
@@ -208,7 +218,7 @@ void BTTransmitChar(unsigned char theChar){
 	_delay_ms(10);
 }
 
-void BTInit()
+void initBTProtocol()
 {
 	/*Pentru Receive*/
 	UBRR0L = 25; //baud rate 9600 bps
