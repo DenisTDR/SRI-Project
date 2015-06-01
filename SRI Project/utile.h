@@ -10,8 +10,8 @@
 #define UTILE_H_
 
 
-void ledAction(char);
-void blinkLedD6(void);
+void ledAction(uint8_t a1, uint8_t a2);
+void blinkA1(void);
 void ReadSensor0(void);
 void ReadSensor1(void);
 void ReadSensor2(void);

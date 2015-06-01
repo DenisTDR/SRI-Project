@@ -16,9 +16,10 @@
 #include "PID/PID1.h"
 
 volatile uint8_t e_stins = 0;
-void blinkLedD6_v1(){
+void blinkA1(){
 	//if(!e_stins)
 	//	PORTD ^=( 1<<PIND2);
+	PORTA ^= _BV(PINA5);
 }
 void blinkLedD6_v2(){
 	e_stins = !e_stins;
@@ -26,20 +27,34 @@ void blinkLedD6_v2(){
 
 extern volatile uint8_t debugging;
 
-void ledAction(char act){
+void ledAction(uint8_t a1, uint8_t a2){
 	//char msg[] = "led action:  ";
 	//msg[strlen(msg)-1]= act+'0';
 	//BTTransmitStr(msg);
 	
-	switch(act){
+	a1 = (a1!=0);
+	a2 = (a2!=0);
+	
+	if(a1)
+		PORTA |= _BV(PINA5);
+	else
+		PORTA &= ~_BV(PINA5);
+	if(a2)
+		PORTA |= _BV(PINA4);
+	else
+		PORTA &= ~_BV(PINA4);
+		
+	
+	return;
+	switch(a1){
 		case 0:
-			removeEntryFromTimerQueue(&blinkLedD6_v1);
+			removeEntryFromTimerQueue(&blinkA1);
 			//PORTD &=~ (1<<PIND2);
 			//shouldBlink = 0;
 			BTTransmitStr("ledul a fost stins.");
 			break;
 		case 1:
-			removeEntryFromTimerQueue(&blinkLedD6_v1);
+			removeEntryFromTimerQueue(&blinkA1);
 			//PORTD |= 1<<PIND2;
 			//shouldBlink = 0;
 			BTTransmitStr("ledul a fost aprins.");
@@ -47,7 +62,7 @@ void ledAction(char act){
 		
 		case 2:
 			e_stins = 0;
-			addEntryToTimerQueue(&blinkLedD6_v1, (1000UL * 1000UL), Periodic);
+			addEntryToTimerQueue(&blinkA1, (1000UL * 1000UL), Periodic);
 			BTTransmitStr("ledul va 'blincari'.");
 			break;
 	}

@@ -14,9 +14,9 @@
 #include "../Timing/Timing.h"
 #include "../Settings.h"
 #include "Encoders.h"
+#include "../utile.h"
 
 void setEnginesSpeed(Engines, Sens, uint8_t);
-void countSeconds();
 
 void goFront(uint8_t timp, uint8_t viteza){	
 	setEnginesSpeed(RightEngines, SensFata, viteza);
@@ -101,6 +101,8 @@ void stopEngines(){
 	PORTD &= ~ 1<<PIND5;
 	
 	removeEntryFromTimerQueue(&countSecondsForEncoders);
+	removeEntryFromTimerQueue(&blinkA1);
+	PORTA |= _BV(PINA5);
 	
 	//if(DEBUGGING)	
 		//BTTransmitStr("M-am oprit!");
@@ -180,6 +182,7 @@ void setEnginesSpeed(Engines engine, Sens sens, uint8_t viteza)
 	
 	//if(sens == SensFata)
 	addEntryIfNotExists(&countSecondsForEncoders, 1000UL*1000UL, Periodic);
+	addEntryIfNotExists(&blinkA1, 250UL*1000UL, Periodic);
 	viteza = 255 - viteza;
 		
 	if(engine==RightEngines){

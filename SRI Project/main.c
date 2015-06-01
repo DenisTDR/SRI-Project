@@ -19,9 +19,6 @@
 #include "Timing/Timing.h"
 #include "utile.h"
 
-
-
-
 volatile uint8_t sradc0, shouldBlink=0;
 
 int main(void)
@@ -36,8 +33,12 @@ int main(void)
 	initEncoders();
 	sei();
 	
-	BTTransmitStr("  >>>main start<<<  ");
+	DDRA |= _BV(PINA4);
+	DDRA |= _BV(PINA5);
+	PORTA |= _BV(PINA4);
 	
+	
+	BTTransmitStr("  >>>main start<<<  ");	
 	
     while(1)
     {

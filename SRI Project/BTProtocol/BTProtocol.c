@@ -150,7 +150,7 @@ void prelucreazaDatele(void){
 			checkFreeParallelParkingPlace();
 		break;
 		case Led:
-			ledAction(date[0]);
+			ledAction(date[0], date[1]);
 		break;
 		case ReadSensorValue:
 			toggleSensorSend(date[0]);		
