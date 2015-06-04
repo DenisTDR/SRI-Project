@@ -20,8 +20,9 @@ main.d main.o: .././main.c \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\util\delay_basic.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\math.h \
  .././Car/Sensors.h .././Car/../Constants.c .././Car/Engines.h \
- .././Car/Encoders.h .././BTProtocol/BTProtocol.h \
- .././BTProtocol/Serializer.h .././Timing/Timing.h .././utile.h
+ .././Car/Encoders.h .././Car/Lights.h .././BTProtocol/BTProtocol.h \
+ .././BTProtocol/Serializer.h .././Timing/Timing.h .././utile.h \
+ .././Settings.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\stdio.h:
 
@@ -71,6 +72,8 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-g
 
 .././Car/Encoders.h:
 
+.././Car/Lights.h:
+
 .././BTProtocol/BTProtocol.h:
 
 .././BTProtocol/Serializer.h:
@@ -78,3 +81,5 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-g
 .././Timing/Timing.h:
 
 .././utile.h:
+
+.././Settings.h:

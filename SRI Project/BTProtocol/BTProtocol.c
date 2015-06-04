@@ -80,8 +80,10 @@ void BTProtocolReadByte(unsigned char theByte){
 			state = ReadingData;
 			len = theByte;
 			dateCrtIndex = 0;
-			if(len<=0 || len>50)
-				state=WaitingStartByte;
+			if(len==0)
+				state = WaitingEndByte;
+			else if(len<0 || len>50)
+				state = WaitingStartByte;
 			break;
 
 		case ReadingData:
@@ -144,7 +146,7 @@ void prelucreazaDatele(void){
 	
 	switch(actiune){
 		case GoM2P2:
-			completeEnclosedContour();
+			initParalelCheck();
 		break;
 		case GoM2P3:
 			checkFreeParallelParkingPlace();
@@ -159,15 +161,15 @@ void prelucreazaDatele(void){
 			stopEngines();
 		break;
 		case RotirePeLocDreapta:
-			rotirePeLoc(date[0], date[1], RightEngines);
+			rotirePeLoc(date[0], date[1], LeftEngines);
 		break;		
 		case RotirePeLocStanga:
-			rotirePeLoc(date[0], date[1], LeftEngines);
+			rotirePeLoc(date[0], date[1], RightEngines);
 		break;
 		case DisplayMessage:
 			//addEntryToTimerQueue(&fctSmechera, 10UL * 1000UL, Periodic);
 			//addEntryToTimerQueue(&testFct1, 500UL * 1000UL, Periodic);
-			addEntryToTimerQueue(&sendEncoderCounter, 500UL * 1000UL, Once);
+			initAndStartStateMachineTest1();
 		break;
 		case GoM2P1:
 			addEntryToTimerQueue(&functieRotireStanga, 1000UL * 500UL, Periodic);
@@ -175,10 +177,32 @@ void prelucreazaDatele(void){
 		break;
 		case ResetThings:
 			stopEngines();
-			resetTimerQueue();
+			resetTimerQueue(1);
 		break;
 		case GetAverageSpeed:
 			getAverageSpeed(date[0]);
+		break;
+		case ParcurgereDistanta:
+			if(len<3)
+				break;
+			uint32_t distDP=0;
+			distDP = date[0]*256UL + date[1];
+			initParcurgereDistanta(distDP, date[2]);
+		break;
+		case ParallelPark:
+			initParalelParking();
+		break;
+		case RotireSmechera:
+			if(len<4)
+				break;
+			rotireSmechera(2, date[0], date[1], date[2], date[3]);
+		break;
+		case SetSettings:
+			if(len==1)
+				setSettings(date[0]);
+		break;
+		case GetSettings:
+			getSettings();
 		break;
 		default:
 		break;
@@ -211,11 +235,18 @@ void BTTransmitMsg(char *theString, uint8_t len){
 		BTTransmitChar(theString[i]);
 	}
 }
+void BTTransmitMsgU(unsigned char *theString, uint8_t len){
+	uint16_t i;
+	for(i=0;i<len;i++)
+	{
+		BTTransmitChar(theString[i]);
+	}
+}
 
 void BTTransmitChar(unsigned char theChar){
 	//while(!(UCSR0A & (1<<UDRE0)));
 	UDR0 = theChar;
-	_delay_ms(10);
+	_delay_us(750);
 }
 
 void initBTProtocol()

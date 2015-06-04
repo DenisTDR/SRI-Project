@@ -9,9 +9,9 @@
 #ifndef FUNCTIIPARCARE_H_
 #define FUNCTIIPARCARE_H_
 
-void functieRotireStanga(void);
-void parcLat();
-void testFct1(void);
+uint8_t functieRotireStanga(void);
+uint8_t parcLat();
+uint8_t testFct1(void);
 
 
 

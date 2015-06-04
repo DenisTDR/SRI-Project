@@ -42,7 +42,7 @@ uint16_t esteParalel(uint16_t sensorFata, uint16_t sensorSpate)
 }
 
 uint8_t str = 0;
-void testFct1(void){
+uint8_t testFct1(void){
 
 	switch(str){
 		case 0:
@@ -64,13 +64,14 @@ void testFct1(void){
 			str = 0;
 		break;
 	}	
+	return NO;
 }
 
 
-void functieRotireStanga(void){
+uint8_t functieRotireStanga(void){
 	uint16_t senzorSt = getValueOfSensor(SideLeftSensor);
 	uint16_t senzorDr = getValueOfSensor(SideRightSensor);
-	debugging = 0;
+	
 	uint16_t senzorStFata = getValueOfSensor(FrontLeftSensor);
 	uint16_t senzorDrFata =getValueOfSensor(FrontRightSensor);
 	
@@ -154,7 +155,7 @@ void functieRotireStanga(void){
 		break;
 	}
 	
-	debugging = 1;
+	return NO;
 }
 void parcLat()
 {

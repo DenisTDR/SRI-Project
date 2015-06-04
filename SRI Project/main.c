@@ -14,30 +14,38 @@
 #include "Car/Sensors.h"
 #include "Car/Engines.h"
 #include "Car/Encoders.h"
+#include "Car/Lights.h"
 #include "BTProtocol/BTProtocol.h"
 #include "BTProtocol/Serializer.h"
 #include "Timing/Timing.h"
 #include "utile.h"
+#include "Settings.h"
 
 volatile uint8_t sradc0, shouldBlink=0;
 
+uint8_t blinkLeds(){
+	PORTA ^= _BV(PINA4);
+	PORTA ^= _BV(PINA5);
+	return NO;
+}
+
+
 int main(void)
 {
-	
 	initBTProtocol();
 	initTiming();
-	initLeds();
 	initEngines();
-	initTimeQueue();
+	initLights();
 	initSensors();
 	initEncoders();
 	sei();
 	
-	DDRA |= _BV(PINA4);
-	DDRA |= _BV(PINA5);
-	PORTA |= _BV(PINA4);
 	
+	setDebugging(1);
+	setReadingSensors(1);
 	
+	//addEntryIfNotExists(&blinkLeds, 500*1000UL, Periodic);
+	//addEntryIfNotExists(&blinkA1, 500UL*1000UL, Periodic);
 	BTTransmitStr("  >>>main start<<<  ");	
 	
     while(1)

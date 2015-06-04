@@ -9,10 +9,15 @@
 #include <avr/interrupt.h>
 
 #include "../BTProtocol/BTProtocol.h"
+#include "../Timing//Timing.h"
+#include "../Constants.c"
+#include "../utile.h"
+
+#define DISTANTA_PARCURSA ( (((encoder1CNT+encoder2CNT)* 21)>>2) )
 
 volatile uint32_t encoder1CNT, encoder2CNT;
 volatile uint8_t lastPB0, lastPB7;
-volatile uint32_t secondsPassed = 0;
+volatile uint32_t deciSecondsPassed = 0;
 ISR(PCINT1_vect)
 {
 	if( (PINB & _BV(PB0)) ^ lastPB0){
@@ -23,8 +28,7 @@ ISR(PCINT1_vect)
 		lastPB7 = (PINB & _BV(PB7));
 		encoder2CNT++;
 	}
-}
-
+} 
 
 void initEncoders(){		
 	PCMSK1 |= _BV(PCINT8);
@@ -33,20 +37,66 @@ void initEncoders(){
 	DDRB &= ~_BV(PINB7);	
 	PCICR |= _BV(PCIE1);
 }
+uint8_t sendDistAndTimePeriodically(void);
 
 void getAverageSpeed(uint8_t reset){
 	char strBuffer[100];
-	sprintf(strBuffer, "\ne1C: %lu\ne2C: %lu ", encoder1CNT, encoder2CNT);
+	sprintf(strBuffer, "\n   dist: %lu \n   timp: %lu",  DISTANTA_PARCURSA, deciSecondsPassed);
 	BTTransmitStr(strBuffer);
+	
+	if(!existsEntryInTimerQueue(&sendDistAndTimePeriodically))
+		addEntryToTimerQueue(&sendDistAndTimePeriodically, 1001 * 1000UL, Periodic);
+	else
+		removeEntryFromTimerQueue(&sendDistAndTimePeriodically);
 	if(reset){
 		encoder2CNT = encoder1CNT = 0;
-		secondsPassed = 0;
+		deciSecondsPassed = 0;
 	}
 }
-void countSecondsForEncoders(){
-	secondsPassed ++;
+uint8_t countTimeForEncoders(){
+	deciSecondsPassed += 2;
+	return 0;
 }
 void resetEncoders(){
 	encoder2CNT = encoder1CNT = 0;
 	lastPB7 = lastPB0 = 0;
+}
+void setSendingDistAndTime(uint8_t on){
+	if(on)
+		addEntryIfNotExists(&sendDistAndTimePeriodically, 500 * 1000UL, Periodic);
+	else
+		removeEntryFromTimerQueue(&sendDistAndTimePeriodically);
+}
+void toggleCountingTimeForEncoders(uint8_t on){
+	if(on)
+		addEntryIfNotExists(&countTimeForEncoders, 200 * 1000UL, Periodic);
+	else{
+		removeEntryFromTimerQueue(&countTimeForEncoders);
+		countTimeForEncoders();
+	}
+}
+
+uint8_t sendDistAndTimePeriodically(void){
+	//BTTransmitStr("no aci");
+	//return NO;
+	uint32_t dist = DISTANTA_PARCURSA;
+	uint32_t time = deciSecondsPassed;
+	uint8_t buffer[20];
+	buffer[0] = StartByte;
+	buffer[1] = InfoCarStats;
+	buffer[2] = 8;
+	
+	buffer[3] = dist >> 24;
+	buffer[4] = (uint8_t)(dist >> 16);
+	buffer[5] = (uint8_t)(dist >> 8);
+	buffer[6] = (uint8_t)(dist);
+	
+	buffer[7] = time >> 24;
+	buffer[8] = (uint8_t)(time >> 16);
+	buffer[9] = (uint8_t)(time >> 8);
+	buffer[10] = (uint8_t)(time);
+	
+	buffer[11] = EndByte;
+	BTTransmitMsgU(buffer, (uint8_t)12);
+	return NO;
 }

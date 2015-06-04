@@ -15,7 +15,6 @@ void initSensors(void);
 uint16_t getValueOfSensor(Sensor);
 uint16_t getCurrentValueOfSensor(Sensor);
 void resetSensorQueue(Sensor);
-void resetTimerQueue(void);
 
 void startADCConversionForSensor(Sensor);
 void initADC(void);
@@ -25,5 +24,6 @@ uint32_t getValueOfSensor2(Sensor sensor, uint8_t debug);
 void readSensorsAndSend();
 void toggleSensorRead(Sensor sensor);
 void toggleSensorSend(Sensor sensor);
+void setSensorsRead(uint8_t val);
 
 #endif /* SENSORS_H_ */
