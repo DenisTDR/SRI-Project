@@ -14,23 +14,24 @@
 #include "../Timing/Timing.h"
 #include "../Settings.h"
 #include "Encoders.h"
+#include "Lights.h"
+#include "../utile.h"
 
 void setEnginesSpeed(Engines, Sens, uint8_t);
-void countSeconds();
 
 void goFront(uint8_t timp, uint8_t viteza){	
 	setEnginesSpeed(RightEngines, SensFata, viteza);
 	setEnginesSpeed(LeftEngines, SensFata, viteza);
-	removeEntryFromTimerQueue(&stopEngines);
-	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);	
+	doBlinkLeds(0, 0);
 	if(DEBUGGING)
 		BTTransmitStr("Ma duc inainte!");
 }
 void goBack(uint8_t timp, uint8_t viteza){
 	setEnginesSpeed(RightEngines, SensSpate, viteza);
 	setEnginesSpeed(LeftEngines, SensSpate, viteza);
-	removeEntryFromTimerQueue(&stopEngines);
-	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
+	doBlinkLeds(0, 0);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inapoi!");
 }
@@ -39,8 +40,8 @@ void goFrontLeft(uint8_t timp, uint8_t viteza){
 	
 	setEnginesSpeed(RightEngines, SensFata, viteza);
 	setEnginesSpeed(LeftEngines, SensFata, 10);
-	removeEntryFromTimerQueue(&stopEngines);
-	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
+	doBlinkLeds(500*1000UL, 0);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inainte stanga!");
 }
@@ -48,8 +49,8 @@ void goFrontRight(uint8_t timp, uint8_t viteza){
 	
 	setEnginesSpeed(RightEngines, SensFata, 10);
 	setEnginesSpeed(LeftEngines, SensFata, viteza);
-	removeEntryFromTimerQueue(&stopEngines);
-	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
+	doBlinkLeds(0, 500*1000UL);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inainte dreapta!");
 }
@@ -58,19 +59,54 @@ void goBackLeft(uint8_t timp, uint8_t viteza){
 	
 	setEnginesSpeed(RightEngines, SensSpate, viteza);
 	setEnginesSpeed(LeftEngines, SensSpate, 10);
-	removeEntryFromTimerQueue(&stopEngines);
-	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
+	doBlinkLeds(500*1000UL, 0);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inapoi stanga!");
 }
 void goBackRight(uint8_t timp, uint8_t viteza){
-	
+		
 	setEnginesSpeed(RightEngines, SensSpate, 10);
 	setEnginesSpeed(LeftEngines, SensSpate, viteza);
-	removeEntryFromTimerQueue(&stopEngines);
-	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
+	doBlinkLeds(0, 500*1000UL);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inapoi dreapta!");
+}
+void rotireSmechera(uint8_t timp, Sens sensStanga, uint8_t vitezaStanga, Sens sensDreapta, uint8_t vitezaDreapta){
+	setEnginesSpeed(RightEngines, sensDreapta, vitezaDreapta);
+	setEnginesSpeed(LeftEngines, sensStanga, vitezaStanga);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000 * timp, Once);
+	
+	if(sensDreapta == SensFata && sensStanga == SensSpate){
+		doBlinkLeds(500*1000UL, 0);
+	}
+	else if(sensDreapta == SensSpate && sensStanga == SensFata){
+		doBlinkLeds(0, 500*1000UL);
+	}
+	else if(sensDreapta == SensFata && sensStanga == SensFata){
+		if(vitezaStanga > vitezaDreapta)			
+			doBlinkLeds(0, 500*1000UL);	
+		else if(vitezaStanga < vitezaDreapta)
+			doBlinkLeds(500*1000UL, 0);
+		else
+			doBlinkLeds(0, 0);
+	}
+	else {
+		if(vitezaStanga < vitezaDreapta)
+			doBlinkLeds(500*1000UL, 0);
+		else if(vitezaStanga > vitezaDreapta)
+			doBlinkLeds(0, 500*1000UL);
+		else
+			doBlinkLeds(0, 0);
+	}
+	
+	if(DEBUGGING){
+		char bfr[100];
+		sprintf(bfr, "rotire smechera : %u %u %u %u", sensStanga, vitezaStanga, sensDreapta, vitezaDreapta);
+		BTTransmitStr(bfr);		
+	}
+		
 }
 void rotirePeLoc(uint8_t timp, uint8_t viteza,  uint8_t engines){
 	
@@ -79,19 +115,20 @@ void rotirePeLoc(uint8_t timp, uint8_t viteza,  uint8_t engines){
 		setEnginesSpeed(RightEngines, SensFata, viteza);
 		if(DEBUGGING)
 			BTTransmitStr("ma rotesc spre dreapta");
+		doBlinkLeds(500*1000UL, 0);
 	}
 	else {
 		setEnginesSpeed(LeftEngines, SensFata, viteza);
 		setEnginesSpeed(RightEngines, SensSpate, viteza);
 		if(DEBUGGING)
 			BTTransmitStr("ma rotesc spre stanga");
+		doBlinkLeds(0, 500*1000UL);
 	}
-	removeEntryFromTimerQueue(&stopEngines);
-	addEntryToTimerQueue(&stopEngines, 1000UL*1000UL*timp, Once);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
 }
 
 
-void stopEngines(){
+uint8_t stopEngines(){
 	OCR0A = 0;
 	OCR2A = 0;
 	
@@ -100,13 +137,13 @@ void stopEngines(){
 	PORTD &= ~ 1<<PIND3;
 	PORTD &= ~ 1<<PIND5;
 	
-	removeEntryFromTimerQueue(&countSecondsForEncoders);
+	//toggleCountingTimeForEncoders(OFF);	
+	turnBlinkingOff();
 	
-	//if(DEBUGGING)	
-		//BTTransmitStr("M-am oprit!");
+	if(DEBUGGING)
+		BTTransmitStr("M-am oprit!");
 	
-	//setEnginesSpeed(RightEngines, 1, 0);
-	//setEnginesSpeed(LeftEngines, 1, 0);
+	return NO;
 }
 void checkFreeParallelParkingPlace(){
     if(DEBUGGING)
@@ -172,36 +209,34 @@ void initEngines()
 	
 }
 
+Sens lastSensLeft=0, lastSensRight=0;
+uint8_t lastVitLeft=0, lastVitRight=0;
 
 void setEnginesSpeed(Engines engine, Sens sens, uint8_t viteza)
 {
-	//PD2 (sens driver dreapta)
-	//PD3 (sens driver stanga)
-	
-	//if(sens == SensFata)
-	addEntryIfNotExists(&countSecondsForEncoders, 1000UL*1000UL, Periodic);
+	//toggleCountingTimeForEncoders(ON);
 	viteza = 255 - viteza;
 		
 	if(engine==RightEngines){
 		if(sens != SensFata){
-			PORTD &= ~ (1<<PIND2);
-			PORTD |=  1<<PIND4;
+			PORTD |=  1<<PIND3;
+			PORTD &= ~ (1<<PIND5);
 		}			
 		else{
-			PORTD |=  1<<PIND2;
-			PORTD &= ~( 1<<PIND4);
+			PORTD &= ~ (1<<PIND3);
+			PORTD |=  1<<PIND5;
 		}
 		OCR2A = viteza;	
 	}
 	else
 	{
-		if(sens != SensFata){	
-			PORTD |=  1<<PIND3;
-			PORTD &= ~ (1<<PIND5);
+		if(sens != SensFata){
+			PORTD &= ~ (1<<PIND2);
+			PORTD |=  1<<PIND4;	
 		}			
 		else{			
-			PORTD &= ~ (1<<PIND3);
-			PORTD |=  1<<PIND5;		
+			PORTD |=  1<<PIND2;
+			PORTD &= ~( 1<<PIND4);	
 		}
 		OCR0A = viteza;
 	}		

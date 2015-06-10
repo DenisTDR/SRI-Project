@@ -4,11 +4,11 @@
 
 BTProtocol\BTProtocol.c
 
-BTProtocol\Serializer.c
-
 Car\Encoders.c
 
 Car\Engines.c
+
+Car\Lights.c
 
 Car\Sensors.c
 

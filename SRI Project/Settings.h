@@ -9,14 +9,21 @@
 #ifndef SETTINGS_H_
 #define SETTINGS_H_
 
-#define DEBUGGING (debugging & 1)
-#define LAST_DEBUGGING (debugging & 2)
+#define setBit(nr, bit, pos) (nr ^= (-bit ^ nr) & (1 << pos));
 
-volatile uint8_t debugging;
-void turnDebuggingOff();
-void turnDebuggingOn();
-void toggleDebuggingOff();
+#define DEBUGGING (settings & 1)
+#define READING_SENSORS (settings & 2)
+#define SENDING_DISTTIME (settings & 4)
+#define LAST_DEBUGGING (settings & 8)
 
+extern volatile uint8_t settings;
+
+void getSettings();
+void setSettings(uint8_t _setting);
+void setDebugging(uint8_t val);
+void setReadingSensors(uint8_t val);
+void setSendingInfos(uint8_t val);
+void toggleDebuggingOff(uint8_t val);
 
 
 #endif /* SETTINGS_H_ */

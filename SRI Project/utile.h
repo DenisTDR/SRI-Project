@@ -8,19 +8,24 @@
 
 #ifndef UTILE_H_
 #define UTILE_H_
+#include "Constants.c"
 
+#define setBit(nr, bit, pos) (nr ^= (-bit ^ nr) & (1 << pos));
 
-void ledAction(char);
-void blinkLedD6(void);
-void ReadSensor0(void);
-void ReadSensor1(void);
-void ReadSensor2(void);
-void ReadSensor3(void);
-void initLeds(void);
+void ledAction(uint8_t a1, uint8_t a2);
+uint8_t blinkA1(void);
 void sendTimeAsString(void);
-void fctSmechera(void);
-void doTimer(void);
-void functieRotireStanga(void);
+uint8_t fctSmechera(void);
+uint8_t doTimer(void);
+uint8_t functieRotireStanga(void);
 void sendEncoderCounter(void);
+void initAndStartStateMachineTest1();
+void initParcurgereDistanta(uint32_t distanta, uint8_t viteza);
+uint8_t SMPcheck();
+ParallelResult isParalel();
+
+void initParalelCheck();
+
+void initParalelParking();
 
 #endif /* UTILE_H_ */

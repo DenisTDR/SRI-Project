@@ -25,33 +25,16 @@ uint16_t getCurrentValueOfSensor(Sensor sensor){
 	return val;
 }
 
-uint16_t getValueOfSensor(Sensor sensor){	
-	
-	uint16_t sVals[7];
-	uint8_t i;
-	uint16_t s;
-	
-	for(i=0;i<7;i++){
-		startADCConversionForSensor(sensor);
-		
-		while ( ADCSRA & (1 << ADSC));
-		sVals[i] = ADCL >> 6;
-		sVals[i] |= ADCH << 2;		
-	}
-	
-	s=0;
-	for(i=0;i<7;i++)
-		s+=sVals[i];
-		
-	return s/7;
-}
-
 volatile uint8_t sensorsToRead, sensorsToSend;
 char msgBuffer[50];
 volatile uint16_t oldValue[4];
 volatile uint32_t lastCMValue[4];
 
-void sendSensor(){
+uint16_t getValueOfSensor(Sensor sensor){
+	return lastCMValue[sensor];
+}
+
+uint8_t sendSensor(){
 	uint8_t i;
 	
 	for(i=0;i<4;i++){		
@@ -60,8 +43,9 @@ void sendSensor(){
 			BTTransmitStr(msgBuffer);			
 		}
 	}
+	return NO;
 }
-void readSensors();
+uint8_t readSensors();
 void toggleSensorSend(Sensor sensor){
 	sensorsToSend ^= 1<<sensor;
 	
@@ -81,7 +65,7 @@ void toggleSensorSend(Sensor sensor){
 	}
 }
 
-void readSensors(){
+uint8_t readSensors(){
 	if(sensorsToRead & 1)
 		lastCMValue[0] = getValueOfSensor3(0);
 	if(sensorsToRead & 2)
@@ -90,21 +74,63 @@ void readSensors(){
 		lastCMValue[2] = getValueOfSensor3(2);
 	if(sensorsToRead & 8)
 		lastCMValue[3] = getValueOfSensor3(3);
+	return NO;
 }
 void toggleSensorRead(Sensor sensor){
 	sensorsToRead ^= 1<<sensor;
 	
-	uint8_t existsInTimerQueue = existsEntryInTimerQueue(&readSensors);
-	
-	if(sensorsToRead && !existsInTimerQueue){
-		addEntryToTimerQueue(&readSensors, 100UL * 1000UL, Periodic);		
+	if(sensorsToRead){
+		addEntryIfNotExists(&readSensors, 100UL * 1000UL, Periodic);		
 	}
 	else{
-		if(!sensorsToRead && existsInTimerQueue){
+		if(!sensorsToRead){
 			removeEntryFromTimerQueue(&readSensors);
 		}
 	}
 }
+void setSensorsRead(uint8_t val){
+	if(val){
+		sensorsToRead = 15;
+		addEntryIfNotExists(&readSensors, 50UL * 1000UL, Periodic);
+	}
+	else{
+		removeEntryFromTimerQueue(&readSensors);
+	}
+}
+
+uint8_t sendSensors();
+void setSensorsSend(uint8_t val){
+	if(val){
+		addEntryIfNotExists(&sendSensors, 750UL*1000UL, Periodic);
+	}
+	else{
+		removeEntryFromTimerQueue(&sendSensors);
+	}
+}
+void usprintf(uint8_t *p, uint32_t nr){
+	union unionUInt32ToArray tmp;
+	tmp.nr = nr;
+	p[0] = tmp.array[3];
+	p[1] = tmp.array[2];
+	p[2] = tmp.array[1];
+	p[3] = tmp.array[0];
+}
+
+uint8_t sendSensors(){
+	uint8_t msg[20];	
+	msg[0] = StartByte;
+	msg[1] = ISensorsValues;
+	msg[2] = 16;
+	usprintf(msg+3, lastCMValue[0]);
+	usprintf(msg+7, lastCMValue[1]);
+	usprintf(msg+11, lastCMValue[2]);
+	usprintf(msg+15, lastCMValue[3]);
+	msg[19] = EndByte;
+	
+	BTTransmitMsgU(msg, 20);
+	return NO;
+}
+
 
 uint32_t getValueOfSensor3(Sensor sensor){
 	uint8_t i;
@@ -132,10 +158,8 @@ uint32_t getValueOfSensor3(Sensor sensor){
 	if(!oldValue[sensor])
 		oldValue[sensor] = s;
 	else
-		oldValue[sensor] = (7*oldValue[sensor] + 3*s) / 10;
+		oldValue[sensor] = (6*oldValue[sensor] + 4*s) / 10;
 
-	//f(x)=769533/((x<<4)+-520)// front
-	//f(x)=24886/((x<<4)+-760) // side
 	
 	if(sensor<2)
 		return (322641UL/((oldValue[sensor]<<4)-315));// senzori laterali
@@ -143,32 +167,7 @@ uint32_t getValueOfSensor3(Sensor sensor){
 		return (769533UL/((oldValue[sensor]<<4)-520));	// senzori frontali
 }
 
-typedef enum{
-	Paralel,
-	Apropiat,
-	PreaApropiat,
-	Departat,
-	PreaDepartat	
-}ParallelResult;
-        
-uint8_t isParalel(uint16_t sideValue, uint16_t frontValue, uint16_t sensorOffset, uint16_t epsilon, uint16_t warningEpsilon)
-{
-	uint16_t sideCalculated = (frontValue - (sensorOffset * (1<<9) / 362)) * 362 / (1<<9);
-			
-	if(sideCalculated > sideValue)
-		if(sideCalculated - sideValue > warningEpsilon)
-			return PreaDepartat;
-		else if(sideCalculated - sideValue > epsilon)
-			return Departat;
-		else 
-			return Paralel;
-	else
-		if(sideValue - sideCalculated > warningEpsilon)
-			return PreaApropiat;
-		else if(sideValue - sideCalculated > epsilon)
-			return Apropiat;
-		else return Paralel;
-}
+
 
 void initSensors(void){
 		
@@ -185,10 +184,6 @@ void initSensors(void){
 	ADCSRA |= (1 << ADEN);  // Enable ADC
 	//ADCSRA |= (1 << ADSC);  // start adc
 	sensorsToRead = sensorsToSend = 0;
-	toggleSensorRead(0);
-	toggleSensorRead(1);
-	toggleSensorRead(2);
-	toggleSensorRead(3);
 }
 
 void startADCConversionForSensor(Sensor sensor){

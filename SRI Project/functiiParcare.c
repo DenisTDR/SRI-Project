@@ -14,256 +14,174 @@
 #include "Constants.c"
 #include "Car/Sensors.h"
 #include "Car/Engines.h"
+#include "Car/Encoders.h"
 #include "PID/PID1.h"
 
-typedef enum{
-	Start,//0
-	intrareInParcare,
-	rotireLoc,
-	rotireMersDR,
-	rotireMersSt,
-	mersFata,
-	poarta,
-	bv,
-	nuPoarta
-}test1;
-
-test1 stare = Start;
-volatile uint8_t iesire=0;
-extern volatile uint8_t debugging;
-
-uint16_t esteParalel(uint16_t sensorFata, uint16_t sensorSpate)
+/*
+void initParcare()
 {
-	//0.833333 = 13/16;
-	
-	
-	//145. + 0.833333
-	return 0;
+	stareV1=0;
+	addEntryIfNotExists(&ParcareV1SMF,250*1000UL,Periodic);
 }
-
-uint8_t str = 0;
-void testFct1(void){
-
-	switch(str){
+uint8_t stareV1;
+void ParcareV1SMF()
+{
+	//uint32_t frontLeft = getValueOfSensor(FrontLeftSensor);
+	uint32_t frontRight = getValueOfSensor(FrontRightSensor);
+	uint32_t sideLeft = getValueOfSensor(SideLeftSensor);
+	uint32_t sideRight = getValueOfSensor(SideRightSensor);
+	switch(stare)
+	{
 		case 0:
-			str = 1;
-			goFront(60, 150);
+			goFront(60, 75);
+			stareV1=1;
 		break;
 		case 1:
-			if(0){//getValueOfSensor2(SideRightSensor, 1) < 150){
-				str = 2;
-				stopEngines();
+			if(frontRight < 208)
+			{
+				rotirePeLoc(60,75,RightEngines);
+				stareV1 = 2;
 			}
 		break;
 		case 2:
-			BTTransmitStr("Done!");
-			str = 3;
+			if(sideRight > 150 && sideRight < 200)
+				stareV1 =  3;
 		break;
 		case 3:
-			removeEntryFromTimerQueue(&testFct1);
-			str = 0;
-		break;
-	}	
-}
-
-
-void functieRotireStanga(void){
-	uint16_t senzorSt = getValueOfSensor(SideLeftSensor);
-	uint16_t senzorDr = getValueOfSensor(SideRightSensor);
-	debugging = 0;
-	uint16_t senzorStFata = getValueOfSensor(FrontLeftSensor);
-	uint16_t senzorDrFata =getValueOfSensor(FrontRightSensor);
-	
-	char str[100];
-	sprintf(str, "SF=%d  DF=%d  S=%d  D=%d  stare=%d", senzorStFata,senzorDrFata, senzorSt,senzorDr, stare);
-	BTTransmitStr(str);
-	
-	switch(stare){
-		case Start:
-			stare = intrareInParcare;
-			BTTransmitStr("Sa incepem :D");
-		break;
-		case intrareInParcare:/*
-			if(senzorStFata>200 && senzorDrFata>200){
-				rotirePeLoc(60, 75, RightEngines);
-				stare=rotireLoc;
-			}*/
-			goFrontRight(60,125);
-			stare = rotireMersDR;			
-		break;
-		case mersFata: // merge in fata
-			if(senzorStFata>150 && senzorDrFata>150){
-				stare = rotireLoc;
-				//goFrontLeft(60, 250);
-				rotirePeLoc(60, 75, LeftEngines);
-			}
-			if(senzorDr<100){
-				iesire--;
-				if(iesire==0){
-					rotirePeLoc(60,75, RightEngines);
-					stare= poarta;}
-				else stare=nuPoarta;
-				
-			}
-			if(senzorDr > 220){
-				stare = rotireMersSt;
-				goFrontLeft(60, 75);
-			}		
-			if(senzorDr<250 && senzorDr>170){
-				stare= rotireMersDR;
-				goFrontRight(60, 75);
-			}
-				
-		break;
-		case poarta:
-			if(senzorStFata <91 && senzorDrFata <180){
-				goFront(6,75);
-				stare=bv;
-			}
-		break;	
-		case bv:
+			if(SMPcheck()==Paralel)
 			{
-				stopEngines();
-				removeEntryFromTimerQueue(&functieRotireStanga);
-			}
-		break;		
-		case rotireMersSt:
-			if(senzorDr < 300){
-				stare = mersFata;
-				goFront(60, 75);
-			}		
-		break;
-		case rotireMersDR:
-			//if(range(senzorDr,senzorDrFata)==0)
-			{
-				stare=mersFata;
-				goFront(60, 75);
-			}
-		break;
-		case rotireLoc:
-			if(senzorDrFata> 100 && senzorDrFata<140){
-				goFront(60, 75);
-				stare=mersFata;				
-			}
-		break;
-		case nuPoarta:
-			if(senzorDr < 300){
-				stare=mersFata;
 				goFront(60,75);
+				stareV1 = 4;
+			}	
+		case 4:
+		break;
+		
+	}
+}*/
+uint32_t cosPortiuni(uint32_t unghi){
+	
+	if(unghi <  15)
+		return 126;
+	if(unghi < 25)
+		return 120;
+	if(unghi < 35)
+		return 111;
+	return 98;
+}
+
+uint8_t doRightDistanceSMF(uint16_t dist, uint8_t eps);
+uint8_t drdSMF();
+uint8_t stareLeft;
+void initDoLeftDistance (){
+	stareLeft=0;
+	addEntryIfNotExists(&drdSMF, 250*1000UL, Periodic);
+}
+
+uint8_t drdSMF(){
+	return doRightDistanceSMF(100, 10);	
+}
+ParallelResult drdPR;
+uint32_t drdTmp1;
+uint8_t doRightDistanceSMF(uint16_t dist, uint8_t eps){
+	uint32_t frontRight = getValueOfSensor(FrontRightSensor);
+	uint32_t sideRight = getValueOfSensor(SideRightSensor);
+	uint16_t diferenta;
+	char msg[50];
+		
+	switch(stareLeft){
+		case 0:
+			if(sideRight > dist + eps/2){
+				diferenta = sideRight - dist;
+				drdPR = Departat;
+			}else if(sideRight < dist - eps/2){
+				diferenta = - sideRight + dist;				
+				drdPR = Apropiat;
+			}else return YES;
+			drdTmp1 = ((sideRight+ 60)<<7) / cosPortiuni(diferenta / 3);
+			rotirePeLoc(60, 85, RightEngines);
+			stareLeft=1;
+			sprintf(msg, "diff=%d   drdtmp=%lu  sideR=%lu", diferenta, drdTmp1, sideRight);
+			BTTransmitStr(msg);
+		break;
+		case 1:
+			if(sideRight > drdTmp1){
+				stopEngines();
+				return YES;				
 			}
 		break;
 	}
 	
-	debugging = 1;
+	
+	return NO;
 }
-void parcLat()
-{
-	uint16_t senzorDr = getValueOfSensor(SideRightSensor);
-	debugging = 0;
-	uint16_t senzorStFata = getValueOfSensor(FrontLeftSensor);
-	uint16_t senzorDrFata =getValueOfSensor(FrontRightSensor);
-	
-	char str[100];
-	sprintf(str, "SF=%d  DF=%d   D=%d  stare=%d", senzorStFata,senzorDrFata,senzorDr, stare);
-	BTTransmitStr(str);
-	
-	switch(stare){
-	case Start:
-		goFront(60,100);
-		if(senzorDr<140)
-			{
-				stare=rotireMersDR;
-			    goFrontRight(100,RightEngines);
+
+
+uint8_t stareFP1;
+uint8_t findPlaces1();
+uint32_t lastVFP1, distP, distP2;
+
+void initFindPlaces1(){
+	stareFP1 = 0;
+	lastVFP1=0;
+	distP=0;
+	distP2=0;
+	addEntryIfNotExists(&findPlaces1, 150 * 1000UL, Periodic);
+}
+
+uint8_t findPlaces1(){
+	uint32_t sideRight = getValueOfSensor(SideRightSensor);
+	char msg[100];
+	//sprintf(msg, "stare=%u\nlastV=%lu\nsr=%lu", stareFP1, lastVFP1, sideRight);
+	//BTTransmitStr(msg);
+	switch(stareFP1){
+		case 0:
+			lastVFP1 = sideRight;
+			goFront(60, 50);
+			stareFP1 = 1;		
+		break;
+		case 1:
+			if(sideRight > lastVFP1 + 100){
+				//stopEngines();
+				stareFP1 = 2;
+				distP = DISTANTA_PARCURSA;
+				//char msg[50];
+				//sprintf(msg, "%lu   ", distP);
+				//BTTransmitStr(msg);
+				distP2 = DISTANTA_PARCURSA + 100;
+				
+				sprintf(msg, "stare->2  distP=%lu", distP);
+				BTTransmitStr(msg);
 				
 			}
-	break;
-	case rotireMersDR:
-		if( senzorStFata >300)//senzorStFata >260 &&
-		{
-			
-			stare=mersFata;
-		}
-	break;
-	case mersFata:
-		if(senzorDrFata>400)
-		{
-			rotirePeLoc(30, 100,LeftEngines);
-			stare=rotireLoc;
-		}
-	break;
-	case  rotireLoc:
-		if(senzorDr >400)
-			stopEngines();
-	break;
-	default:
-	break;
+			lastVFP1 = sideRight;
+		break;
+		case 2:
+			if(DISTANTA_PARCURSA > distP2){
+				stareFP1= 3;
+				lastVFP1 = sideRight;
+				
+				sprintf(msg, "stare->3  DP=%lu", DISTANTA_PARCURSA);
+				BTTransmitStr(msg);
+			}
+		break;
+		case 3:
+			if(sideRight > lastVFP1 + 100){
+				//stopEngines();
+				distP = (DISTANTA_PARCURSA - distP)/2 + DISTANTA_PARCURSA;
+				stareFP1 = 4;
+				goBack(60, 40);
+				sprintf(msg, "stare->4 distP=%lu DP=%lu", distP, DISTANTA_PARCURSA);
+				BTTransmitStr(msg);
+				
+			}
+			lastVFP1 = sideRight;
+		break;
+		case 4:
+			if(DISTANTA_PARCURSA > distP){
+				stopEngines();
+				return YES;
+			}		
+		break;
 	}
+	return NO;
 }
-
-uint8_t st;
- /*void parcareLaterala()
- {
-	 char str[70];
-	 uint32_t tmp2;
-	 sprintf(str, "st = %d",st);
-	 BTTransmitStr(str);
-
-	 switch (state2)
-	 {
-		 case 0:
-			goFront(30, 200);
-			st = 1;
-			break;
-		 case 1:
-			tmp2 = getValueOfSensor2(SideRightSensor)
-			//getSensorValue(Sensor.SideRight);
-			 if (tmp2 < 100)
-			 {
-				 st = 2;
-			 }
-			 break;
-		 case 2:
-		 tmp2 = getValueOfSensor2(SideRightSensor)
-		 // funcs.getSensorValue(Sensor.SideRight);
-		 if (tmp2 > 120)
-		 {
-			 st=3;
-			 goFrontRight(30, 240);
-			 //RealFuncs.goFrontRight(30, 200);
-		 }
-		 break;
-		 case 3:
-			tmp2=getValueOfSensor2(FrontRightSensor);
-		 //tmp2 = funcs.getSensorValue(Sensor.FrontRight);
-		 if (tmp2 < 55)
-		 {
-			 st=4;
-			 goFrontLeft(1, 240);
-			 //RealFuncs.goFrontLeft(30, 250);
-		 }
-
-		 break;
-
-		 case 4:
-		 removeEntryFromTimerQueue(&parcareLaterala);
-		 if (isRightParalel() == 0)
-		 {
-			 RealFuncs.goFront(30, 175);
-			 state2 = 5;
-			 return false;
-		 }
-		 break;
-		 case 5:
-		 if (Math.Abs(funcs.getSensorValue(Sensor.FrontLeft) - funcs.getSensorValue(Sensor.FrontRight)) < 10)
-		 {
-			 RealFuncs.StopEngines();
-			 return true;
-		 }
-		 break;
-		 default:
-		 break;
-
-	 }
-
-	 return false;
- }*/

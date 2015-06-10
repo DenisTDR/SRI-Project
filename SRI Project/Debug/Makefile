@@ -42,9 +42,9 @@ SUBDIRS :=  \
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../BTProtocol/BTProtocol.c \
-../BTProtocol/Serializer.c \
 ../Car/Encoders.c \
 ../Car/Engines.c \
+../Car/Lights.c \
 ../Car/Sensors.c \
 ../Constants.c \
 ../functiiParcare.c \
@@ -63,9 +63,9 @@ ASM_SRCS +=
 
 OBJS +=  \
 BTProtocol/BTProtocol.o \
-BTProtocol/Serializer.o \
 Car/Encoders.o \
 Car/Engines.o \
+Car/Lights.o \
 Car/Sensors.o \
 Constants.o \
 functiiParcare.o \
@@ -77,9 +77,9 @@ utile.o
 
 OBJS_AS_ARGS +=  \
 BTProtocol/BTProtocol.o \
-BTProtocol/Serializer.o \
 Car/Encoders.o \
 Car/Engines.o \
+Car/Lights.o \
 Car/Sensors.o \
 Constants.o \
 functiiParcare.o \
@@ -91,9 +91,9 @@ utile.o
 
 C_DEPS +=  \
 BTProtocol/BTProtocol.d \
-BTProtocol/Serializer.d \
 Car/Encoders.d \
 Car/Engines.d \
+Car/Lights.d \
 Car/Sensors.d \
 Constants.d \
 functiiParcare.d \
@@ -105,9 +105,9 @@ utile.d
 
 C_DEPS_AS_ARGS +=  \
 BTProtocol/BTProtocol.d \
-BTProtocol/Serializer.d \
 Car/Encoders.d \
 Car/Engines.d \
+Car/Lights.d \
 Car/Sensors.d \
 Constants.d \
 functiiParcare.d \
@@ -138,13 +138,6 @@ BTProtocol/BTProtocol.o: ../BTProtocol/BTProtocol.c
 	@echo Finished building: $<
 	
 
-BTProtocol/Serializer.o: ../BTProtocol/Serializer.c
-	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : 4.8.1
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1061\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega644a -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
-	@echo Finished building: $<
-	
-
 Car/Encoders.o: ../Car/Encoders.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.8.1
@@ -153,6 +146,13 @@ Car/Encoders.o: ../Car/Encoders.c
 	
 
 Car/Engines.o: ../Car/Engines.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 4.8.1
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1061\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega644a -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+Car/Lights.o: ../Car/Lights.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.8.1
 	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.1061\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega644a -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
