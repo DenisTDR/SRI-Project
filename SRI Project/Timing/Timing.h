@@ -13,7 +13,7 @@
 
 
 void addEntryToTimerQueue(uint8_t (*) (void), uint32_t, uint8_t);
-void removeEntryFromTimerQueue(uint8_t (*) (void));
+uint8_t removeEntryFromTimerQueue(uint8_t (*) (void));
 uint8_t existsEntryInTimerQueue(uint8_t (*) (void));
 void addEntryIfNotExists(uint8_t (*) (void), uint32_t, uint8_t);
 

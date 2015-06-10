@@ -23,7 +23,7 @@ void setSettings(uint8_t _setting);
 void setDebugging(uint8_t val);
 void setReadingSensors(uint8_t val);
 void setSendingInfos(uint8_t val);
-void toggleDebuggingOff();
+void toggleDebuggingOff(uint8_t val);
 
 
 #endif /* SETTINGS_H_ */

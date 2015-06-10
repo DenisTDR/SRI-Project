@@ -11,6 +11,8 @@
  #include "../Settings.h"
  #include "../Constants.c"
  #include "../utile.h"
+ #include "../Car/Sensors.h"
+ #include "../Car/Engines.h"
  
  #define TimingQueueSize 20
 
@@ -23,15 +25,17 @@ typedef struct{
 void timePassed(uint32_t passed_us);
 void shiftTimeQueue(uint8_t i, char *reason);
 void initTimeQueue();
-
+volatile uint32_t timerClocks;
 ISR(TIMER1_OVF_vect)// Din datasheet timerq(are 8 mh) => 8/8= 1 microsecunde
 {
+	timerClocks++;
 	timePassed(8210);
 	//blinkA1();
 }
 
 void initTiming()
 {
+	timerClocks=0;
 	initTimeQueue();
 	TIMSK1|=(1<<TOIE1);
 	TCNT1 = 0x00;
@@ -70,8 +74,8 @@ void addEntryToTimerQueue(uint8_t (*_theFct) (void), uint32_t _delay, uint8_t _r
 	}
 	sei();
 }
-void removeEntryFromTimerQueue(uint8_t (*_theFct) (void)){
-	uint8_t i;
+uint8_t removeEntryFromTimerQueue(uint8_t (*_theFct) (void)){
+	uint8_t i, c=0;
 	for(i=0; i<TimingQueueTop; i++){
 		if(TimerQueue[i].pointerFct == _theFct){
 			if(DEBUGGING){
@@ -81,8 +85,10 @@ void removeEntryFromTimerQueue(uint8_t (*_theFct) (void)){
 			}
 			shiftTimeQueue(i, "remove function"); 
 			i--;
+			c++;
 		}
 	}
+	return c;
 }
 
 uint8_t existsEntryInTimerQueue(uint8_t (*_theFct) (void)){
@@ -133,7 +139,6 @@ void checkTimeQueue(void){
 		if(TimerQueue[i].pointerFct != NULL){
 			if(TimerQueue[i].delay == 0){
 				if(TimerQueue[i].pointerFct()){
-					TimerQueue[i].pointerFct = NULL;
 					shiftTimeQueue(i, "returned true");
 					i--;
 				}
@@ -141,9 +146,11 @@ void checkTimeQueue(void){
 					if(TimerQueue[i].repeatDelay)
 						TimerQueue[i].delay = TimerQueue[i].repeatDelay;
 					else{
-						TimerQueue[i].pointerFct = NULL;
-						shiftTimeQueue(i, "not periodic");
-						i--;
+						if(TimerQueue[i].pointerFct ==  &stopEngines)
+							i -= removeEntryFromTimerQueue(&stopEngines);
+						else
+							shiftTimeQueue(i, "not periodic"),
+							i--;
 					}
 			}
 		}
@@ -152,18 +159,20 @@ void checkTimeQueue(void){
 }
 void shiftTimeQueue(uint8_t i, char *reason){
 	if(DEBUGGING){
-		char str[50];
-		sprintf(str, "shift i=%d (%s)", i, reason);
-		BTTransmitStr(str);
+		//char str[50];
+		//sprintf(str, "shift i=%d (%s)", i, reason);
+		//BTTransmitStr(str);
 	}
 	for(; i<TimingQueueTop; i++)
-		TimerQueue[i]=TimerQueue[i+1];
+		TimerQueue[i] = TimerQueue[i+1];
 	TimingQueueTop--;
 }
 
 void resetTimerQueue(uint8_t keepReadSensors){
 	uint8_t i;
-	for(i=1;i<TimingQueueSize;i++)
-		TimerQueue[i].pointerFct = NULL;
+	for(i=0;i<TimingQueueSize;i++){
+		if( TimerQueue[i].pointerFct != &readSensors || !keepReadSensors )
+			shiftTimeQueue(i, "reset timer queue");
+	}
 	TimingQueueTop = 1;
 }

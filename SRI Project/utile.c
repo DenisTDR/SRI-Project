@@ -148,13 +148,6 @@ uint8_t SMFParcurgereDistanta(){
 }
 
 
-typedef enum{
-	PreaApropiat,
-	Apropiat,
-	Paralel,
-	Departat,
-	PreaDepartat
-}ParallelResult;
 
 ParallelResult isParalel(uint32_t sideValue, uint32_t frontValue, uint32_t sensorOffset, uint32_t epsilon, uint32_t warningEpsilon)
 {
@@ -312,7 +305,7 @@ uint8_t paralelParkingSMF(){
 		case 4:
 			if(sr<200){
 				statePP = 5;
-				rotirePeLoc(10, 80, LeftEngines);
+				rotirePeLoc(10, 50, LeftEngines);
 			}
 		break;
 		case 5:

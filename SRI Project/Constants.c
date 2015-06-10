@@ -4,6 +4,9 @@
  * Created: 5/5/2015 12:55:02 AM
  *  Author: NMs
  */ 
+
+#include <avr/io.h>
+
 #ifndef CONSTANTS_C
 #define CONSTANTS_C
 
@@ -17,37 +20,40 @@
 #define StartByte (unsigned char)0xAA
 #define EndByte (unsigned char)0x55
 typedef enum{
-	NoAction, // 0
-	GoFront,  // 1
-	GoBack,	  // 2
-	GoLeftF,  // 3
-	GoRightF, // 4
-	GoLeftB,  // 5
-	GoRightB, // 6
-	RotirePeLocStanga, // 7
-	RotirePeLocDreapta, // 8
-	RotireSmechera,
-	GoM2P1,   // 9
-	GoM2P2,   // 10
-	GoM2P3,   // 11
-	ParkAt,   // 12
-	ParallelPark, // 13
-	FinalP1,  // 14
-	FinalP2,  // 15
-	FinalP3,  // 16
-	InfoCarStats,     // 19
-	Int32Value,    // 20
-	ReTransmitLastMsg,  // 21
-	DisplayMessage,   // 22
-	Led,			  // 23
-	ReadSensorValue,  // 24
-	StopEngines,      // 25
-	GetAverageSpeed,   //26
-	ParcurgereDistanta, //27
-	ResetThings,		//28
-	GetSettings,		//29
-	SetSettings,		//29
-	EndAction         // 30
+        NoAction,
+        GoFront,
+        GoBack,
+        GoLeftF,
+        GoRightF,
+        GoLeftB,
+        GoRightB,
+        RotirePeLocStanga,
+        RotirePeLocDreapta,
+        RotireSmechera,
+        GoM2P1,
+        GoM2P2,
+        GoM2P3,
+        ParkAt,
+        ParallelPark,
+        FinalP1,
+        FinalP2,
+        FinalP3,
+        InfoCarStats,
+        ISensorsValues,
+        ICarSettings,
+        Int32Value,
+        ReTransmitLastMsg,
+        DisplayMessage,
+        Led,
+        ReadSensorValue,
+        StopEngines,
+        GetAverageSpeed,
+        ParcurgereDistanta,
+        ResetThings,
+        GetSettings,
+        SetSettings,
+		CarStarted,
+        EndAction
 } CarAction;
 
 typedef enum{
@@ -75,5 +81,18 @@ typedef enum{
 	SensSpate
 }Sens;
 
+typedef enum{
+	PreaApropiat,
+	Apropiat,
+	Paralel,
+	Departat,
+	PreaDepartat
+}ParallelResult;
+
+
+union unionUInt32ToArray{
+	uint32_t nr;
+	uint8_t array[4];
+};
 
 #endif

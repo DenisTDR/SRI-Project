@@ -137,16 +137,12 @@ uint8_t stopEngines(){
 	PORTD &= ~ 1<<PIND3;
 	PORTD &= ~ 1<<PIND5;
 	
-	toggleCountingTimeForEncoders(OFF);
-	PORTA |= _BV(PINA5);
+	//toggleCountingTimeForEncoders(OFF);	
+	turnBlinkingOff();
 	
-	doBlinkLeds(0, 0);
+	if(DEBUGGING)
+		BTTransmitStr("M-am oprit!");
 	
-	//if(DEBUGGING)	
-		//BTTransmitStr("M-am oprit!");
-	
-	//setEnginesSpeed(RightEngines, 1, 0);
-	//setEnginesSpeed(LeftEngines, 1, 0);
 	return NO;
 }
 void checkFreeParallelParkingPlace(){
@@ -218,7 +214,7 @@ uint8_t lastVitLeft=0, lastVitRight=0;
 
 void setEnginesSpeed(Engines engine, Sens sens, uint8_t viteza)
 {
-	toggleCountingTimeForEncoders(ON);
+	//toggleCountingTimeForEncoders(ON);
 	viteza = 255 - viteza;
 		
 	if(engine==RightEngines){

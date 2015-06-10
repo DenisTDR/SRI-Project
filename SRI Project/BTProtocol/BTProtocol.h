@@ -18,5 +18,6 @@ void BTTransmitMsgU(unsigned char *theString, uint8_t len);
 void BTTransmitStr(char *);
 void reTransmit(void);
 void resetALL(void);
+void sendCarStartedSignal();
 
 #endif /* BTPROTOCOL_H_ */

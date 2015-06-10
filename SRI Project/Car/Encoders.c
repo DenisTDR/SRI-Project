@@ -18,6 +18,13 @@
 volatile uint32_t encoder1CNT, encoder2CNT;
 volatile uint8_t lastPB0, lastPB7;
 volatile uint32_t deciSecondsPassed = 0;
+volatile uint8_t encSetting = 2;
+volatile uint8_t cnt4Encoders = 0;
+
+void resetEncoders();
+uint8_t countTimeForEncoders();
+void toggleCountingTimeForEncoders(uint8_t on);
+
 ISR(PCINT1_vect)
 {
 	if( (PINB & _BV(PB0)) ^ lastPB0){
@@ -28,6 +35,13 @@ ISR(PCINT1_vect)
 		lastPB7 = (PINB & _BV(PB7));
 		encoder2CNT++;
 	}
+	if((encSetting & 3) == 0){
+		encSetting = 5;
+		cnt4Encoders = 0;
+		addEntryIfNotExists(&countTimeForEncoders, 200 * 1000UL, Periodic);
+	}	
+	encSetting |= 3;
+	cnt4Encoders = 0;
 } 
 
 void initEncoders(){		
@@ -36,6 +50,7 @@ void initEncoders(){
 	PCMSK1 |= _BV(PCINT15);
 	DDRB &= ~_BV(PINB7);	
 	PCICR |= _BV(PCIE1);
+	resetEncoders();
 }
 uint8_t sendDistAndTimePeriodically(void);
 
@@ -54,7 +69,14 @@ void getAverageSpeed(uint8_t reset){
 	}
 }
 uint8_t countTimeForEncoders(){
-	deciSecondsPassed += 2;
+	if(encSetting & 1){
+		deciSecondsPassed += 2;
+		
+		cnt4Encoders++;
+		if(cnt4Encoders & 3){
+			encSetting ^= 1;
+		}
+	}
 	return 0;
 }
 void resetEncoders(){
@@ -67,18 +89,12 @@ void setSendingDistAndTime(uint8_t on){
 	else
 		removeEntryFromTimerQueue(&sendDistAndTimePeriodically);
 }
-void toggleCountingTimeForEncoders(uint8_t on){
-	if(on)
-		addEntryIfNotExists(&countTimeForEncoders, 200 * 1000UL, Periodic);
-	else{
-		removeEntryFromTimerQueue(&countTimeForEncoders);
-		countTimeForEncoders();
-	}
-}
 
 uint8_t sendDistAndTimePeriodically(void){
-	//BTTransmitStr("no aci");
-	//return NO;
+	if((encSetting & 2) == 0)
+		return NO;
+	encSetting ^= 2;
+	
 	uint32_t dist = DISTANTA_PARCURSA;
 	uint32_t time = deciSecondsPassed;
 	uint8_t buffer[20];

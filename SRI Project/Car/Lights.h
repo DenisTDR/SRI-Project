@@ -14,5 +14,6 @@ void initLights();
 uint8_t blinkLeftLeds();
 uint8_t blinkRightLeds();
 void doBlinkLeds(uint32_t perioadaStanga, uint32_t perioadaDreapta);
+void turnBlinkingOff();
 
 #endif /* LIGHTS_H_ */

@@ -25,5 +25,9 @@ void readSensorsAndSend();
 void toggleSensorRead(Sensor sensor);
 void toggleSensorSend(Sensor sensor);
 void setSensorsRead(uint8_t val);
+void setSensorsSend(uint8_t val);
+uint8_t readSensors(void);
+
+uint8_t sendSensors();
 
 #endif /* SENSORS_H_ */

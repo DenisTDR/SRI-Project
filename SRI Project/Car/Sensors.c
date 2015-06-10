@@ -80,7 +80,7 @@ void toggleSensorRead(Sensor sensor){
 	sensorsToRead ^= 1<<sensor;
 	
 	if(sensorsToRead){
-		addEntryIfNotExists(&readSensors, 50UL * 1000UL, Periodic);		
+		addEntryIfNotExists(&readSensors, 100UL * 1000UL, Periodic);		
 	}
 	else{
 		if(!sensorsToRead){
@@ -91,12 +91,46 @@ void toggleSensorRead(Sensor sensor){
 void setSensorsRead(uint8_t val){
 	if(val){
 		sensorsToRead = 15;
-		addEntryIfNotExists(&readSensors, 100UL * 1000UL, Periodic);
+		addEntryIfNotExists(&readSensors, 50UL * 1000UL, Periodic);
 	}
 	else{
 		removeEntryFromTimerQueue(&readSensors);
 	}
 }
+
+uint8_t sendSensors();
+void setSensorsSend(uint8_t val){
+	if(val){
+		addEntryIfNotExists(&sendSensors, 750UL*1000UL, Periodic);
+	}
+	else{
+		removeEntryFromTimerQueue(&sendSensors);
+	}
+}
+void usprintf(uint8_t *p, uint32_t nr){
+	union unionUInt32ToArray tmp;
+	tmp.nr = nr;
+	p[0] = tmp.array[3];
+	p[1] = tmp.array[2];
+	p[2] = tmp.array[1];
+	p[3] = tmp.array[0];
+}
+
+uint8_t sendSensors(){
+	uint8_t msg[20];	
+	msg[0] = StartByte;
+	msg[1] = ISensorsValues;
+	msg[2] = 16;
+	usprintf(msg+3, lastCMValue[0]);
+	usprintf(msg+7, lastCMValue[1]);
+	usprintf(msg+11, lastCMValue[2]);
+	usprintf(msg+15, lastCMValue[3]);
+	msg[19] = EndByte;
+	
+	BTTransmitMsgU(msg, 20);
+	return NO;
+}
+
 
 uint32_t getValueOfSensor3(Sensor sensor){
 	uint8_t i;
@@ -124,10 +158,8 @@ uint32_t getValueOfSensor3(Sensor sensor){
 	if(!oldValue[sensor])
 		oldValue[sensor] = s;
 	else
-		oldValue[sensor] = (7*oldValue[sensor] + 3*s) / 10;
+		oldValue[sensor] = (6*oldValue[sensor] + 4*s) / 10;
 
-	//f(x)=769533/((x<<4)+-520)// front
-	//f(x)=24886/((x<<4)+-760) // side
 	
 	if(sensor<2)
 		return (322641UL/((oldValue[sensor]<<4)-315));// senzori laterali
@@ -152,10 +184,6 @@ void initSensors(void){
 	ADCSRA |= (1 << ADEN);  // Enable ADC
 	//ADCSRA |= (1 << ADSC);  // start adc
 	sensorsToRead = sensorsToSend = 0;
-	//toggleSensorRead(0);
-	//toggleSensorRead(1);
-	//toggleSensorRead(2);
-	//toggleSensorRead(3);
 }
 
 void startADCConversionForSensor(Sensor sensor){

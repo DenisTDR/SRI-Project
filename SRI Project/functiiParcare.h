@@ -14,5 +14,7 @@ uint8_t parcLat();
 uint8_t testFct1(void);
 
 
+void initDoLeftDistance();
+void initFindPlaces1();
 
 #endif /* FUNCTIIPARCARE_H_ */

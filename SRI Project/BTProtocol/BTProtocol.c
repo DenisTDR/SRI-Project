@@ -47,18 +47,22 @@ unsigned char len;
 unsigned char date[10];
 unsigned char dateCrtIndex;
 
-void resetBTProtocol(){
+uint8_t resetBTProtocol(){
 	state = WaitingStartByte;
+	return NO;
 }
 
-extern volatile uint8_t iesire;
+extern volatile uint32_t timerClocks;
+volatile uint32_t startTmrclk, endTmrclk;
 void BTProtocolReadByte(unsigned char theByte){
 	cli();
 	switch (state){
 		case WaitingStartByte:
 			if(theByte == StartByte){
 				state = WaitingCarAction;
-				//addEntryToTimerQueue(&resetBTProtocol, 1000UL * 1000UL * 1000UL, Once);
+				//toggleDebuggingOff(0);
+				//addEntryIfNotExists(&resetBTProtocol, 16UL * 1000UL, Once);
+				//toggleDebuggingOff(1);
 			}
 			break;
 
@@ -76,6 +80,7 @@ void BTProtocolReadByte(unsigned char theByte){
 		case WaitingDataLength:
 			if(theByte==0){
 				state = WaitingEndByte;
+				break;
 			}
 			state = ReadingData;
 			len = theByte;
@@ -95,7 +100,8 @@ void BTProtocolReadByte(unsigned char theByte){
 			if(theByte != 0x55){
 				reTransmit(); // error ocurred, send retransmit signal
 			}
-			else{
+			else{				
+				removeEntryFromTimerQueue(&resetBTProtocol);
 				prelucreazaDatele();
 			}
 			state = WaitingStartByte;
@@ -115,19 +121,19 @@ void prelucreazaDatele(void){
 		unsigned char timp = date[0];
 		unsigned char viteza = date[1];
 		if(dateCrtIndex == 3)
-			toggleDebuggingOff();
+			toggleDebuggingOff(OFF);
 		switch(actiune){
 			case GoFront:
-			goFront(timp, viteza);
+				goFront(timp, viteza);
 			break;
 			case GoBack:
-			goBack(timp, viteza);
+				goBack(timp, viteza);
 			break;
 			case GoLeftF:
-			goFrontLeft(timp, viteza);
+				goFrontLeft(timp, viteza);
 			break;
 			case GoLeftB:
-			goBackLeft(timp, viteza);
+				goBackLeft(timp, viteza);
 			break;
 			case GoRightF:
 				goFrontRight(timp, viteza);
@@ -139,14 +145,16 @@ void prelucreazaDatele(void){
 				break;
 		}
 		if(dateCrtIndex == 3)
-			toggleDebuggingOff();
+			toggleDebuggingOff(ON);
 			
 		return;
 	}
 	
 	switch(actiune){
 		case GoM2P2:
-			initParalelCheck();
+			//initDoLeftDistance();
+			initFindPlaces1();
+			//initParalelCheck();
 		break;
 		case GoM2P3:
 			checkFreeParallelParkingPlace();
@@ -172,8 +180,7 @@ void prelucreazaDatele(void){
 			initAndStartStateMachineTest1();
 		break;
 		case GoM2P1:
-			addEntryToTimerQueue(&functieRotireStanga, 1000UL * 500UL, Periodic);
-			iesire=date[0];
+			//addEntryToTimerQueue(&functieRotireStanga, 1000UL * 500UL, Periodic);
 		break;
 		case ResetThings:
 			stopEngines();
@@ -191,6 +198,7 @@ void prelucreazaDatele(void){
 		break;
 		case ParallelPark:
 			initParalelParking();
+			
 		break;
 		case RotireSmechera:
 			if(len<4)
@@ -204,10 +212,14 @@ void prelucreazaDatele(void){
 		case GetSettings:
 			getSettings();
 		break;
+		case ISensorsValues:
+			sendSensors();
+		break;
 		default:
 		break;
 	}
-	//alta actiune...
+	
+	
 	//sei();
 }
 
@@ -248,7 +260,14 @@ void BTTransmitChar(unsigned char theChar){
 	UDR0 = theChar;
 	_delay_us(750);
 }
-
+void sendCarStartedSignal(){
+	uint8_t bfr[4];
+	bfr[0] = StartByte;
+	bfr[1] = CarStarted;
+	bfr[2] = 0;
+	bfr[3] = EndByte;
+	BTTransmitMsgU(bfr, 4);
+}
 void initBTProtocol()
 {
 	/*Pentru Receive*/

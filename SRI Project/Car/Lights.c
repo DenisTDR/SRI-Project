@@ -48,6 +48,13 @@ void doBlinkLeds(uint32_t perioadaStanga, uint32_t perioadaDreapta){
 	}
 }
 
+void turnBlinkingOff(){
+	removeEntryFromTimerQueue(&blinkLeftLeds);
+	removeEntryFromTimerQueue(&blinkRightLeds);
+	PORTA &=~ _BV(PINA5);
+	PORTA &=~ _BV(PINA4);		
+}
+
 /*
 
 uint8_t blinkLeds(){
