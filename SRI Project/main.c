@@ -34,8 +34,7 @@ int main(void)
 	setDebugging(1);
 	setReadingSensors(1);
 	
-	//addEntryIfNotExists(&blinkLeds, 500*1000UL, Periodic);
-	//addEntryIfNotExists(&blinkA1, 500UL*1000UL, Periodic);
+	
 	BTTransmitStr("  >>>main start<<<  ");	
 	sendCarStartedSignal();
     while(1)

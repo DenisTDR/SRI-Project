@@ -155,6 +155,8 @@ void prelucreazaDatele(void){
 			//initDoLeftDistance();
 			initFindPlaces1();
 			//initParalelCheck();
+			//initLocLiber();
+			//initIntrareParcare();
 		break;
 		case GoM2P3:
 			checkFreeParallelParkingPlace();

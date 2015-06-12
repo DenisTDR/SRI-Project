@@ -15,5 +15,6 @@ uint8_t blinkLeftLeds();
 uint8_t blinkRightLeds();
 void doBlinkLeds(uint32_t perioadaStanga, uint32_t perioadaDreapta);
 void turnBlinkingOff();
+uint8_t blinkNeons();
 
 #endif /* LIGHTS_H_ */

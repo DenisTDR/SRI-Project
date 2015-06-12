@@ -187,7 +187,7 @@ uint8_t SMPcheck(){
 	sr = getValueOfSensor(SideRightSensor);
 	//sr = getValueOfSensor(SideRightSensor);
 	
-	ParallelResult rez = isParalel(sr, fr, 95, 22, 45);
+	ParallelResult rez = isParalel(sr, fr, 95, 70, 100);// din 22 l-am facut 50 epsilon si warningul de la 45 la 100
 	
 	//char msg[50];
 	//sprintf(msg, "is paralel: %d sr:%lu  fr:%lu", rez, sr, fr);
@@ -305,7 +305,7 @@ uint8_t paralelParkingSMF(){
 		case 4:
 			if(sr<200){
 				statePP = 5;
-				rotirePeLoc(10, 50, LeftEngines);
+				rotirePeLoc(10, 70, LeftEngines);
 			}
 		break;
 		case 5:
@@ -445,4 +445,43 @@ uint8_t checkMinim(void)
 	
 	return NO;
 	
+}
+
+ParallelResult isParalelSide(uint32_t sl, uint32_t sr,  uint32_t epsilon, uint32_t warningEpsilon)
+{
+	if(sl < sr-epsilon )
+		return Departat;
+	if(sl > sr + epsilon)
+		return Apropiat;
+	return Paralel;
+}
+	
+	
+
+
+
+
+uint8_t SMPcheckSide(){
+	//sensor offset 95 mm;
+	uint32_t sl, sr;
+	 sl = getValueOfSensor(SideLeftSensor);
+	sr = getValueOfSensor(SideRightSensor);
+	ParallelResult rez =isParalelSide(sl, sr, 20, 40);
+		switch(rez){
+			
+			case Apropiat:
+			goFrontSides(60,150, 50);  //rotirePeLoc(10, 60, RightEngines);
+			break;
+			case Paralel:
+			stopEngines();
+			return YES;
+			break;
+			case Departat:
+			goFrontSides(60,50, 150);  //rotirePeLoc(10, 60, LeftEngines);
+			break;
+			
+		}
+		
+	
+	return NO;
 }

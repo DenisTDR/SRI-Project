@@ -12,8 +12,8 @@
 uint8_t functieRotireStanga(void);
 uint8_t parcLat();
 uint8_t testFct1(void);
-
-
+void initLocLiber();
+void initLocLiber();
 void initDoLeftDistance();
 void initFindPlaces1();
 

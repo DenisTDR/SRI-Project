@@ -11,7 +11,7 @@
 #include "Constants.c"
 
 #define setBit(nr, bit, pos) (nr ^= (-bit ^ nr) & (1 << pos));
-
+uint8_t SMPcheckSide();
 void ledAction(uint8_t a1, uint8_t a2);
 uint8_t blinkA1(void);
 void sendTimeAsString(void);

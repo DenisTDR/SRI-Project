@@ -32,8 +32,11 @@ void goBack(uint8_t timp, uint8_t viteza){
 	setEnginesSpeed(LeftEngines, SensSpate, viteza);
 	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
 	doBlinkLeds(0, 0);
-    if(DEBUGGING)
+	PORTA |= _BV(PINA6);
+    if(DEBUGGING){
+		
 		BTTransmitStr("Ma duc inapoi!");
+	}
 }
 
 void goFrontLeft(uint8_t timp, uint8_t viteza){
@@ -54,6 +57,16 @@ void goFrontRight(uint8_t timp, uint8_t viteza){
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inainte dreapta!");
 }
+void goFrontSides(uint8_t timp, uint8_t vitezaD, uint8_t vitezaS){
+	
+	setEnginesSpeed(RightEngines, SensFata, vitezaD);
+	setEnginesSpeed(LeftEngines, SensFata, vitezaS);
+	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
+	doBlinkLeds(500*1000UL, 0);
+	if(DEBUGGING)
+	BTTransmitStr("Ma duc inainte stanga!");
+}
+
 
 void goBackLeft(uint8_t timp, uint8_t viteza){
 	
@@ -61,6 +74,7 @@ void goBackLeft(uint8_t timp, uint8_t viteza){
 	setEnginesSpeed(LeftEngines, SensSpate, 10);
 	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
 	doBlinkLeds(500*1000UL, 0);
+	PORTA |= _BV(PINA6);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inapoi stanga!");
 }
@@ -70,6 +84,7 @@ void goBackRight(uint8_t timp, uint8_t viteza){
 	setEnginesSpeed(LeftEngines, SensSpate, viteza);
 	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
 	doBlinkLeds(0, 500*1000UL);
+	PORTA |= _BV(PINA6);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inapoi dreapta!");
 }
@@ -131,7 +146,7 @@ void rotirePeLoc(uint8_t timp, uint8_t viteza,  uint8_t engines){
 uint8_t stopEngines(){
 	OCR0A = 0;
 	OCR2A = 0;
-	
+	PORTA &= ~ 1<<PINA6;
 	PORTD &= ~ 1<<PIND2;
 	PORTD &= ~ 1<<PIND4;
 	PORTD &= ~ 1<<PIND3;
