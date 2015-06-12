@@ -114,11 +114,70 @@ uint8_t doRightDistanceSMF(uint16_t dist, uint8_t eps){
 	
 	return NO;
 }
+uint8_t intrareParcareSMF();
 
-
-uint8_t stareFP1;
+uint8_t stareFP1,stareLocLiber,liber,stareIntrareParcare;
 uint8_t findPlaces1();
-uint32_t lastVFP1, distP, distP2;
+uint32_t lastVFP1, distP, distP2,distLocLiber;
+
+uint8_t locLiberSMF();
+void initLocLiber()
+{
+	stareLocLiber=0;
+	distP=0;
+	addEntryIfNotExists(&locLiberSMF, 150 * 1000UL, Periodic);
+}
+uint8_t locLiberSMF(){
+	uint32_t sideRight = getValueOfSensor(SideRightSensor);
+	char msg[100];
+	switch(stareLocLiber){
+		case 0:
+			distLocLiber=DISTANTA_PARCURSA;
+			if(sideRight>200){
+				liber=liber *1;
+			}
+			else 
+				liber = 0;
+			stareLocLiber=1;
+			goBack(60,75);			
+		break;
+		case 1:
+			if(DISTANTA_PARCURSA - 4 > distLocLiber)
+				stareLocLiber=2;
+		break;
+		case 2:
+			distLocLiber=DISTANTA_PARCURSA;
+			if(sideRight>200){
+				liber=liber *1;
+			}
+			else
+			liber = 0;
+			stareLocLiber=3;
+			goFront(60,75);
+		break;
+		case 3:
+			if(DISTANTA_PARCURSA - 4> distLocLiber)
+				stareLocLiber = 4;
+		break;
+		case 4:
+			distLocLiber=DISTANTA_PARCURSA;
+			if(sideRight>200){
+				liber=liber *1;
+			}
+			else
+				liber = 0;
+			stopEngines();
+			if(liber==1){
+				sprintf(msg, "stare= 1");
+				BTTransmitStr(msg);
+			}
+			return YES;
+		break;
+		
+	}
+	return NO;
+
+}
 
 void initFindPlaces1(){
 	stareFP1 = 0;
@@ -127,6 +186,7 @@ void initFindPlaces1(){
 	distP2=0;
 	addEntryIfNotExists(&findPlaces1, 150 * 1000UL, Periodic);
 }
+
 
 uint8_t findPlaces1(){
 	uint32_t sideRight = getValueOfSensor(SideRightSensor);
@@ -158,8 +218,7 @@ uint8_t findPlaces1(){
 		case 2:
 			if(DISTANTA_PARCURSA > distP2){
 				stareFP1= 3;
-				lastVFP1 = sideRight;
-				
+				lastVFP1 = sideRight;				
 				sprintf(msg, "stare->3  DP=%lu", DISTANTA_PARCURSA);
 				BTTransmitStr(msg);
 			}
@@ -179,8 +238,73 @@ uint8_t findPlaces1(){
 		case 4:
 			if(DISTANTA_PARCURSA > distP){
 				stopEngines();
-				return YES;
+				stareFP1 = 5;
 			}		
+		break;
+		case 5:
+			if(locLiberSMF()==YES)				
+		break;
+	}
+	return NO;
+}
+
+void initIntrareParcare()
+{
+	stareIntrareParcare = 0;
+	distP=0;
+	addEntryIfNotExists(&intrareParcareSMF, 250*1000UL, Periodic);
+}
+
+uint8_t intrareParcareSMF()
+{
+	uint32_t sideRight = getValueOfSensor(SideRightSensor);
+	uint32_t sideLeft = getValueOfSensor(SideLeftSensor);
+	uint32_t frontLeft = getValueOfSensor(FrontLeftSensor);
+	uint32_t frontRight = getValueOfSensor(FrontRightSensor);
+	char msg[100];
+	sprintf(msg, "stare=%d ", stareIntrareParcare);
+	BTTransmitStr(msg);
+	switch(stareIntrareParcare)
+	{
+		case 0:
+			rotirePeLoc(60,120,LeftEngines);
+			distP = DISTANTA_PARCURSA;
+			stareIntrareParcare=1;
+		break;
+		case 1:
+			if(DISTANTA_PARCURSA > distP + 190 )
+			{
+				 goFront(60, 90);
+				 stareIntrareParcare = 2;
+				 distP = DISTANTA_PARCURSA;
+			}
+		break;
+		case 2:
+			if(distP + 200 < DISTANTA_PARCURSA)
+			{
+				stareIntrareParcare = 3;
+				stopEngines();
+			}
+		break;
+		case 3:
+		if((frontRight + frontLeft)/2> 150){
+			if( SMPcheckSide()==Paralel)
+			{
+				stareIntrareParcare = 4;
+			}
+		}
+		else stareIntrareParcare = 5;
+		break;
+		case 4:
+			goFront(60, 40);
+			stareIntrareParcare = 3;
+		break;
+		case 5:
+			if(frontRight < 150)
+			{
+				stopEngines();
+				return YES;
+			}
 		break;
 	}
 	return NO;

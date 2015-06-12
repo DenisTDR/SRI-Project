@@ -10,7 +10,7 @@
 #define ENGINES_H_
 
 #include "../Constants.c"
-
+void goFrontSides(uint8_t timp, uint8_t viteza, uint8_t viteza2);
 void goFront(uint8_t timp, uint8_t viteza);
 void goBack(uint8_t, uint8_t);
 void goFrontLeft(uint8_t, uint8_t);

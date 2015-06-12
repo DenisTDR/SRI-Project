@@ -14,11 +14,20 @@
 #include "../Constants.c"
 #include "../utile.h"
 
+uint8_t blinkNeons();
+
 void initLights(){	
 	DDRA |= _BV(PINA4);
 	DDRA |= _BV(PINA5);
 	PORTA |= _BV(PINA4);
 	PORTA |= _BV(PINA5);
+	
+	
+	DDRA |= _BV(PINA6);
+	DDRA |= _BV(PINA7);
+	PORTA |= _BV(PINA7);
+	
+	addEntryIfNotExists(&blinkNeons, 250UL*1000UL, Periodic);
 }
 
 uint8_t blinkLeftLeds(){
@@ -28,6 +37,18 @@ uint8_t blinkLeftLeds(){
 
 uint8_t blinkRightLeds(){
 	PORTA ^= _BV(PINA4);
+	return NO;
+}
+
+uint8_t blinkNeonsVar = 0;
+uint8_t blinkNeons(){
+	if(blinkNeonsVar % 7 == 0 || blinkNeonsVar % 7 == 2){
+		PORTA &= ~_BV(PINA7);
+	}
+	else if(blinkNeonsVar % 7 == 1 || blinkNeonsVar % 7 == 3){
+		PORTA |= _BV(PINA7);
+	}
+	blinkNeonsVar ++;
 	return NO;
 }
 
@@ -52,7 +73,7 @@ void turnBlinkingOff(){
 	removeEntryFromTimerQueue(&blinkLeftLeds);
 	removeEntryFromTimerQueue(&blinkRightLeds);
 	PORTA &=~ _BV(PINA5);
-	PORTA &=~ _BV(PINA4);		
+	PORTA &=~ _BV(PINA4);
 }
 
 /*
