@@ -53,6 +53,7 @@ typedef enum{
         GetSettings,
         SetSettings,
 		CarStarted,
+		CRCSumFailed,
         EndAction
 } CarAction;
 
@@ -61,7 +62,9 @@ typedef enum{
     WaitingCarAction,  //1
     WaitingDataLength, //2
     ReadingData,        //3
-    WaitingEndByte      //4
+    WaitingCommandId, //4
+	WaitingCRCByte, //5
+    WaitingEndByte  //6
 } BTState;
 
 typedef enum{

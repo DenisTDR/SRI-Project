@@ -33,19 +33,24 @@ ISR(USART0_RX_vect)
 }
 
 
-void reTransmit(void){
+void reTransmitC(uint8_t commandId){
 	//trimite un semnal telefonului pentru a retransmite ultimul mesaj
-	printf("Trimite din nou ultimul mesaj!!!");
-	char msg[] = { StartByte, ReTransmitLastMsg, 0, 0x55 };
+	char msg[] = { StartByte, CRCSumFailed, 1, commandId,EndByte };
+	BTTransmitMsg(msg, 5);
+}
+void reTransmit(){
+	char msg[] = { StartByte, CRCSumFailed, 0, EndByte };
 	BTTransmitMsg(msg, 4);
 }
 
 
 BTState state;
 CarAction actiune;
-unsigned char len;
-unsigned char date[10];
-unsigned char dateCrtIndex;
+uint8_t len;
+uint8_t date[10];
+uint8_t dateCrtIndex;
+uint8_t commandId;
+uint8_t crcSumByte;
 
 uint8_t resetBTProtocol(){
 	state = WaitingStartByte;
@@ -54,8 +59,15 @@ uint8_t resetBTProtocol(){
 
 extern volatile uint32_t timerClocks;
 volatile uint32_t startTmrclk, endTmrclk;
+volatile uint16_t crtRecByteIndex = 0;
 void BTProtocolReadByte(unsigned char theByte){
-	cli();
+
+	crtRecByteIndex++;
+	if(crtRecByteIndex%25==0 && 0){
+		char msg[50];
+		sprintf(msg, "crbi:%hu  crtState:%u", crtRecByteIndex, state);
+		BTTransmitStr(msg);
+	}
 	switch (state){
 		case WaitingStartByte:
 			if(theByte == StartByte){
@@ -76,39 +88,41 @@ void BTProtocolReadByte(unsigned char theByte){
 				reTransmit(); // error ocurred, send retransmit signal
 			}
 			break;
-
 		case WaitingDataLength:
+			crcSumByte = theByte + actiune;
 			if(theByte==0){
-				state = WaitingEndByte;
+				state = WaitingCommandId;
 				break;
 			}
 			state = ReadingData;
 			len = theByte;
 			dateCrtIndex = 0;
-			if(len==0)
-				state = WaitingEndByte;
-			else if(len<0 || len>50)
-				state = WaitingStartByte;
 			break;
 
 		case ReadingData:
 			date[dateCrtIndex++] = theByte;
+			crcSumByte += theByte;
 			if(dateCrtIndex >= len)
-			state = WaitingEndByte;
+				state = WaitingCommandId;
 			break;
-		case WaitingEndByte:
-			if(theByte != 0x55){
-				reTransmit(); // error ocurred, send retransmit signal
+		case WaitingCommandId:
+			commandId = theByte;
+			state = WaitingCRCByte;
+		break;
+		case WaitingCRCByte:
+			if(crcSumByte - theByte){
+				char msg[50];
+				sprintf(msg, "%u", crcSumByte > theByte ? crcSumByte-theByte:theByte-crcSumByte);
+				BTTransmitStr(msg);
+				reTransmitC(commandId);
 			}
-			else{				
-				removeEntryFromTimerQueue(&resetBTProtocol);
+			else
 				prelucreazaDatele();
-			}
+			removeEntryFromTimerQueue(&resetBTProtocol);
 			state = WaitingStartByte;
-			break;
-
+			
+		break;
 	}
-	sei();
 	//printf("\nstare noua %d: ", state);
 }
 extern volatile uint8_t ms2p1_enabled;
@@ -120,7 +134,7 @@ void prelucreazaDatele(void){
 	if(actiune >= GoFront && actiune <= GoRightB){
 		unsigned char timp = date[0];
 		unsigned char viteza = date[1];
-		if(dateCrtIndex == 3)
+		if(len == 3)
 			toggleDebuggingOff(OFF);
 		switch(actiune){
 			case GoFront:
@@ -144,7 +158,7 @@ void prelucreazaDatele(void){
 			default:
 				break;
 		}
-		if(dateCrtIndex == 3)
+		if(len == 3)
 			toggleDebuggingOff(ON);
 			
 		return;
@@ -153,10 +167,11 @@ void prelucreazaDatele(void){
 	switch(actiune){
 		case GoM2P2:
 			//initDoLeftDistance();
-			initFindPlaces1();
+			//initFindPlaces1();
 			//initParalelCheck();
 			//initLocLiber();
 			//initIntrareParcare();
+			initFindPlaces1();
 		break;
 		case GoM2P3:
 			checkFreeParallelParkingPlace();
@@ -186,7 +201,8 @@ void prelucreazaDatele(void){
 		break;
 		case ResetThings:
 			stopEngines();
-			resetTimerQueue(1);
+			resetTimerQueue();
+			reSetSettings();
 		break;
 		case GetAverageSpeed:
 			getAverageSpeed(date[0]);

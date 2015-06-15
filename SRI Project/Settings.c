@@ -10,6 +10,7 @@
 #include "Timing/Timing.h"
 #include "Car/Encoders.h"
 #include "Car/Sensors.h"
+#include "Car/Lights.h"
 
 
 #define setBit(nr, bit, pos) (nr ^= (-bit ^ nr) & (1 << pos));
@@ -18,7 +19,8 @@
 #define READING_SENSORS (settings & 2)
 #define SENDING_DISTTIME (settings & 4)
 #define SENDING_SENSORS (settings & 8)
-#define LAST_DEBUGGING (settings & 16)
+#define NEONS_SETTING ( (settings>>4) & 0x7 )
+#define LAST_DEBUGGING (settings & 128)
 
 volatile uint8_t settings = 0;
 
@@ -37,18 +39,23 @@ void setSendingSensors(uint8_t val){
 	setBit(settings, (val&1), 3);
 	setSensorsSend(val);
 }
+void setNeonSetting(uint8_t val){
+	settings &= ~ (0x7<<4);
+	settings |= val<<4;
+	setTheNeonSetting(val);
+}
 
 void toggleDebuggingOff(uint8_t val){
 	if(!val){
 		if(DEBUGGING){
 			setDebugging(0);
-			setBit(settings, 1, 4);
+			setBit(settings, 1, 7);
 		}
 	}
 	else
 		if(LAST_DEBUGGING){
 			setDebugging(1);
-			setBit(settings, 0, 4);
+			setBit(settings, 0, 7);
 		}
 }
 
@@ -66,5 +73,9 @@ void setSettings(uint8_t _setting){
 	setReadingSensors( (_setting>>1) & 1 );
 	setSendingInfos( (_setting>>2) & 1 );
 	setSendingSensors( (_setting >>3) & 1);
+	setNeonSetting( (_setting>>4) & 0x7  );
 	getSettings();
+}
+void reSetSettings(){
+	setSettings(settings);
 }

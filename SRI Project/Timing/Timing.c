@@ -55,7 +55,7 @@ void initTimeQueue(){
 
 // delay e in microsecunde (10^-6 secunde)
 void addEntryToTimerQueue(uint8_t (*_theFct) (void), uint32_t _delay, uint8_t _repeat){
-	cli(); // dezactivare intreruperi
+	//cli(); // dezactivare intreruperi
 	
 	
 	//construire entry pentru functia curenta 
@@ -72,7 +72,7 @@ void addEntryToTimerQueue(uint8_t (*_theFct) (void), uint32_t _delay, uint8_t _r
 		sprintf(msg, "Entry adaugat in coada! la index %d si cu delay: %lu", TimingQueueTop-1, TimerQueue[TimingQueueTop-1].delay);
 		BTTransmitStr(msg);
 	}
-	sei();
+	//sei();
 }
 uint8_t removeEntryFromTimerQueue(uint8_t (*_theFct) (void)){
 	uint8_t i, c=0;
@@ -102,7 +102,6 @@ uint8_t existsEntryInTimerQueue(uint8_t (*_theFct) (void)){
 }
 
 void addEntryIfNotExists(uint8_t (*_theFct) (void), uint32_t _delay, uint8_t _repeat){
-	cli();
 	uint8_t i;
 	for(i=0; i<TimingQueueTop; i++){
 		if(TimerQueue[i].pointerFct == _theFct){
@@ -113,8 +112,8 @@ void addEntryIfNotExists(uint8_t (*_theFct) (void), uint32_t _delay, uint8_t _re
 	}	
 	if(i==TimingQueueTop)
 		addEntryToTimerQueue(_theFct, _delay, _repeat);
-	sei();
 }
+
 
 
 //se apeleaza din intrerupere (cate microsecunde au trecut)
@@ -133,7 +132,6 @@ void timePassed(uint32_t passed_us){
 //se apeleaza din main loop
 //verifica daca sunt functii care trebuie apelate (daca delay-ul lor a ajuns la 0)
 void checkTimeQueue(void){
-	cli();
 	uint8_t i;
 	for(i=0; i<TimingQueueTop; i++){
 		if(TimerQueue[i].pointerFct != NULL){
@@ -155,7 +153,7 @@ void checkTimeQueue(void){
 			}
 		}
 	}
-	sei();
+	//sei();
 }
 void shiftTimeQueue(uint8_t i, char *reason){
 	if(DEBUGGING){
@@ -168,11 +166,9 @@ void shiftTimeQueue(uint8_t i, char *reason){
 	TimingQueueTop--;
 }
 
-void resetTimerQueue(uint8_t keepReadSensors){
+void resetTimerQueue(void){
 	uint8_t i;
-	for(i=0;i<TimingQueueSize;i++){
-		if( TimerQueue[i].pointerFct != &readSensors || !keepReadSensors )
-			shiftTimeQueue(i, "reset timer queue");
-	}
+	for(i=0; i<TimingQueueSize; i++)
+		shiftTimeQueue(i, "reset timer queue");
 	TimingQueueTop = 1;
 }

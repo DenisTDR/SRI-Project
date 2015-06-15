@@ -33,6 +33,7 @@ int main(void)
 	
 	setDebugging(1);
 	setReadingSensors(1);
+	setNeonSetting(0);
 	
 	
 	BTTransmitStr("  >>>main start<<<  ");	
