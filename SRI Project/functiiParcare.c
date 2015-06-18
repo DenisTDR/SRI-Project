@@ -83,7 +83,7 @@ uint8_t drdSMF(){
 ParallelResult drdPR;
 uint32_t drdTmp1;
 uint8_t doRightDistanceSMF(uint16_t dist, uint8_t eps){
-	uint32_t frontRight = getValueOfSensor(FrontRightSensor);
+	//uint32_t frontRight = getValueOfSensor(FrontRightSensor);
 	uint32_t sideRight = getValueOfSensor(SideRightSensor);
 	uint16_t diferenta;
 	char msg[50];
@@ -232,7 +232,7 @@ uint8_t findPlaces1(){
 			}
 		break;
 		case 5:
-			if(distP = locLiberSMF()){
+			if((distP = locLiberSMF())){
 				if(distP & 1){
 					BTTransmitStr("locul e liber");
 				}
@@ -340,7 +340,7 @@ uint8_t intrareLocParcareSMF()
 uint8_t intrareParcareSMF()
 {
 	uint32_t sideRight = getValueOfSensor(SideRightSensor);
-	uint32_t sideLeft = getValueOfSensor(SideLeftSensor);
+	//uint32_t sideLeft = getValueOfSensor(SideLeftSensor);
 	uint32_t frontLeft = getValueOfSensor(FrontLeftSensor);
 	uint32_t frontRight = getValueOfSensor(FrontRightSensor);
 	char msg[100];
