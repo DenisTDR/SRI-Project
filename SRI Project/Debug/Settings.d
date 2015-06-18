@@ -13,7 +13,8 @@ Settings.d Settings.o: .././Settings.c \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\avr\fuse.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\avr\lock.h \
  .././BTProtocol/BTProtocol.h .././Constants.c .././Timing/Timing.h \
- .././Car/Encoders.h .././Car/Sensors.h .././Car/../Constants.c
+ .././Car/Encoders.h .././Car/Sensors.h .././Car/../Constants.c \
+ .././Car/Lights.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-gnu-toolchain\avr\include\avr\io.h:
 
@@ -52,3 +53,5 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\avr8\ gcc\native\3.4.1061\avr8-g
 .././Car/Sensors.h:
 
 .././Car/../Constants.c:
+
+.././Car/Lights.h:

@@ -53,18 +53,21 @@ void goFrontRight(uint8_t timp, uint8_t viteza){
 	setEnginesSpeed(RightEngines, SensFata, 10);
 	setEnginesSpeed(LeftEngines, SensFata, viteza);
 	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
-	doBlinkLeds(0, 500*1000UL);
     if(DEBUGGING)
 		BTTransmitStr("Ma duc inainte dreapta!");
 }
-void goFrontSides(uint8_t timp, uint8_t vitezaD, uint8_t vitezaS){
-	
+void goFrontSides(uint8_t timp, uint8_t vitezaD, uint8_t vitezaS){	
 	setEnginesSpeed(RightEngines, SensFata, vitezaD);
 	setEnginesSpeed(LeftEngines, SensFata, vitezaS);
 	addEntryIfNotExists(&stopEngines, 1000UL*1000UL*timp, Once);
-	doBlinkLeds(500*1000UL, 0);
-	if(DEBUGGING)
-	BTTransmitStr("Ma duc inainte stanga!");
+	if(DEBUGGING){
+		if(vitezaS > vitezaD)
+			BTTransmitStr("Ma duc inainte stanga!"),
+			doBlinkLeds(500*1000UL, 0);
+		else
+			BTTransmitStr("Ma duc inainte dreapta!"),
+			doBlinkLeds(0, 500*1000UL);
+	}
 }
 
 
@@ -157,7 +160,7 @@ uint8_t stopEngines(){
 	
 	if(DEBUGGING)
 		BTTransmitStr("M-am oprit!");
-	
+	removeEntryFromTimerQueue(&stopEngines);
 	return NO;
 }
 void checkFreeParallelParkingPlace(){

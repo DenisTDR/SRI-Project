@@ -168,18 +168,18 @@ ParallelResult isParalel(uint32_t sideValue, uint32_t frontValue, uint32_t senso
 		else 
 			return Paralel;
 }
-uint8_t SMPcheck();
+uint8_t SMRPcheck();
 void initParalelCheck(){
-	if(existsEntryInTimerQueue(&SMPcheck))
-		removeEntryFromTimerQueue(&SMPcheck),
+	if(existsEntryInTimerQueue(&SMRPcheck))
+		removeEntryFromTimerQueue(&SMRPcheck),
 		BTTransmitStr("removed paralel check fct");
 	else
-		addEntryIfNotExists(&SMPcheck, 250UL * 1000UL, Periodic),
+		addEntryIfNotExists(&SMRPcheck, 250UL * 1000UL, Periodic),
 		BTTransmitStr("added paralel check fct");
 }
 
 volatile ParallelResult lastParallelResult = Paralel;
-uint8_t SMPcheck(){
+uint8_t SMRPcheck(){
 	//sensor offset 95 mm;	
 	uint32_t fr, sr;
 	fr = getValueOfSensor(FrontRightSensor);
@@ -187,7 +187,7 @@ uint8_t SMPcheck(){
 	sr = getValueOfSensor(SideRightSensor);
 	//sr = getValueOfSensor(SideRightSensor);
 	
-	ParallelResult rez = isParalel(sr, fr, 95, 70, 100);// din 22 l-am facut 50 epsilon si warningul de la 45 la 100
+	ParallelResult rez = isParalel(sr, fr, 95, 22, 45);
 	
 	//char msg[50];
 	//sprintf(msg, "is paralel: %d sr:%lu  fr:%lu", rez, sr, fr);
@@ -197,26 +197,64 @@ uint8_t SMPcheck(){
 	if(rez != lastParallelResult){
 		switch(rez){
 			case PreaApropiat:
-				rotirePeLoc(10, 75, RightEngines);
+				rotirePeLoc(10, 90, RightEngines);
 			break;		
 			case Apropiat:
-				rotirePeLoc(10, 60, RightEngines);
+				rotirePeLoc(10, 75, RightEngines);
 			break;		
 			case Paralel:
 				stopEngines();
+				lastParallelResult = Paralel;
 				return YES;
 			break;
 			case Departat:
-				rotirePeLoc(10, 60, LeftEngines);
+				rotirePeLoc(10, 75, LeftEngines);
 			break;
 			case PreaDepartat:
-				rotirePeLoc(10, 75, LeftEngines);
+				rotirePeLoc(10, 90, LeftEngines);
 			break;
 		}
 		lastParallelResult = rez;
 	}	
 	return NO;
 }
+uint8_t SMLPcheck(){
+	//sensor offset 95 mm;
+	uint32_t fl, sl;
+	fl = getValueOfSensor(FrontLeftSensor);
+	sl = getValueOfSensor(SideLeftSensor);
+		
+	ParallelResult rez = isParalel(sl, fl, 95, 22, 45);
+	
+	
+	if(rez == Paralel && lastParallelResult == Paralel)
+	return YES;
+	if(rez != lastParallelResult){
+		switch(rez){
+			case PreaApropiat:
+			rotirePeLoc(10, 90, LeftEngines);
+			break;
+			case Apropiat:
+			rotirePeLoc(10, 75, LeftEngines);
+			break;
+			case Paralel:
+			stopEngines();
+			lastParallelResult = Paralel;
+			return YES;
+			break;
+			case Departat:
+			rotirePeLoc(10, 75, RightEngines);
+			break;
+			case PreaDepartat:
+			rotirePeLoc(10, 90, RightEngines);
+			break;
+		}
+		lastParallelResult = rez;
+	}
+	return NO;
+}
+
+
 
 uint8_t paralelParkingSMF();
 uint8_t statePP, secsCounter;
@@ -257,7 +295,7 @@ uint8_t paralelParkingSMF(){
 			}		
 		break;
 		case 0:
-			if(SMPcheck() == 1){
+			if(SMRPcheck() == 1){
 				statePP = 1;
 				goFront(30, 60);
 			}
@@ -347,7 +385,7 @@ uint8_t paralelParkingSMF(){
 		
 		break;
 		case 10:
-			if( 1 || SMPcheck()){
+			if( 1 || SMRPcheck()){
 				stopEngines();
 				distDeParcurs = DISTANTA_PARCURSA + 30;
 				statePP = 11;
@@ -460,27 +498,31 @@ ParallelResult isParalelSide(uint32_t sl, uint32_t sr,  uint32_t epsilon, uint32
 
 
 
-
+ParallelResult oldRez = PreaApropiat;
 uint8_t SMPcheckSide(){
 	//sensor offset 95 mm;
 	uint32_t sl, sr;
 	 sl = getValueOfSensor(SideLeftSensor);
 	sr = getValueOfSensor(SideRightSensor);
-	ParallelResult rez =isParalelSide(sl, sr, 20, 40);
-		switch(rez){
-			
+	ParallelResult rez = isParalelSide(sl, sr, 20, 40);
+	
+	if(oldRez != rez){
+		switch(rez){			
 			case Apropiat:
-			goFrontSides(60,150, 50);  //rotirePeLoc(10, 60, RightEngines);
+				goFrontSides(60,120, 30);  //rotirePeLoc(10, 60, RightEngines);
 			break;
 			case Paralel:
-			stopEngines();
-			return YES;
+				stopEngines();
+				oldRez = PreaApropiat;
+				return YES;
 			break;
 			case Departat:
-			goFrontSides(60,50, 150);  //rotirePeLoc(10, 60, LeftEngines);
+				goFrontSides(60,30, 120);  //rotirePeLoc(10, 60, LeftEngines);
 			break;
 			
 		}
+		oldRez=rez;
+	}
 		
 	
 	return NO;

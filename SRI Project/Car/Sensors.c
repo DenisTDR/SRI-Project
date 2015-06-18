@@ -101,7 +101,7 @@ void setSensorsRead(uint8_t val){
 uint8_t sendSensors();
 void setSensorsSend(uint8_t val){
 	if(val){
-		addEntryIfNotExists(&sendSensors, 750UL*1000UL, Periodic);
+		addEntryIfNotExists(&sendSensors, 250UL*1000UL, Periodic);
 	}
 	else{
 		removeEntryFromTimerQueue(&sendSensors);
@@ -158,7 +158,7 @@ uint32_t getValueOfSensor3(Sensor sensor){
 	if(!oldValue[sensor])
 		oldValue[sensor] = s;
 	else
-		oldValue[sensor] = (6*oldValue[sensor] + 4*s) / 10;
+		oldValue[sensor] = (5*oldValue[sensor] + 5*s) / 10;
 
 	
 	if(sensor<2)

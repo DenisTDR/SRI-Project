@@ -22,6 +22,6 @@ void timePassed(uint32_t);
 
 void checkTimeQueue(void);
 void initTimeQueue(void);
-void resetTimerQueue(uint8_t keepReadSensors);
+void resetTimerQueue(void);
 
 #endif /* TIMING_H_ */

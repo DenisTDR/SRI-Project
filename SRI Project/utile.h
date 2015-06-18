@@ -12,6 +12,8 @@
 
 #define setBit(nr, bit, pos) (nr ^= (-bit ^ nr) & (1 << pos));
 uint8_t SMPcheckSide();
+uint8_t  SMLPcheck();
+uint8_t  SMRPcheck();
 void ledAction(uint8_t a1, uint8_t a2);
 uint8_t blinkA1(void);
 void sendTimeAsString(void);
@@ -21,7 +23,7 @@ uint8_t functieRotireStanga(void);
 void sendEncoderCounter(void);
 void initAndStartStateMachineTest1();
 void initParcurgereDistanta(uint32_t distanta, uint8_t viteza);
-uint8_t SMPcheck();
+uint8_t SMRPcheck();
 ParallelResult isParalel();
 
 void initParalelCheck();

@@ -13,21 +13,20 @@
 #include "../Timing//Timing.h"
 #include "../Constants.c"
 #include "../utile.h"
+#include "../Settings.h"
 
 uint8_t blinkNeons();
 
 void initLights(){	
 	DDRA |= _BV(PINA4);
 	DDRA |= _BV(PINA5);
-	PORTA |= _BV(PINA4);
-	PORTA |= _BV(PINA5);
+	//PORTA |= _BV(PINA4);
+	//PORTA |= _BV(PINA5);
 	
 	
 	DDRA |= _BV(PINA6);
 	DDRA |= _BV(PINA7);
-	PORTA |= _BV(PINA7);
 	
-	addEntryIfNotExists(&blinkNeons, 250UL*1000UL, Periodic);
 }
 
 uint8_t blinkLeftLeds(){
@@ -40,18 +39,47 @@ uint8_t blinkRightLeds(){
 	return NO;
 }
 
-uint8_t blinkNeonsVar = 0;
-uint8_t blinkNeons(){
-	if(blinkNeonsVar % 7 == 0 || blinkNeonsVar % 7 == 2){
-		PORTA &= ~_BV(PINA7);
+uint8_t blinkNeonsState = 0;
+
+uint8_t blinkNeonsSMF(){
+	switch(NEONS_SETTING){
+		case 1:
+			if(blinkNeonsState == 0)
+				PORTA &= ~_BV(PINA7);
+			else if(blinkNeonsState > 6){
+				PORTA ^= _BV(PINA7);
+				if(blinkNeonsState == 12)
+				blinkNeonsState = 0;
+			}
+		break;
+		case 2:
+			if(blinkNeonsState % 7 == 0 || blinkNeonsState % 7 == 2){
+				PORTA &= ~_BV(PINA7);
+			}
+			else if(blinkNeonsState % 7 == 1 || blinkNeonsState % 7 == 3){
+				PORTA |= _BV(PINA7);
+			}
+		break;
+		case 3:
+		
+		break;
+		case 4:
+		
+		break;
+		default:
+		break;
 	}
-	else if(blinkNeonsVar % 7 == 1 || blinkNeonsVar % 7 == 3){
-		PORTA |= _BV(PINA7);
-	}
-	blinkNeonsVar ++;
+	blinkNeonsState ++;
 	return NO;
 }
-
+void setTheNeonSetting(uint8_t val){
+	blinkNeonsState=0;
+	PORTA &= ~_BV(PINA7);
+	if(val)
+		addEntryIfNotExists(&blinkNeonsSMF, 250 * 1000UL, Periodic);
+	else
+		removeEntryFromTimerQueue(&blinkNeonsSMF);
+}
 void doBlinkLeds(uint32_t perioadaStanga, uint32_t perioadaDreapta){
 	if(perioadaStanga == 0){
 		removeEntryFromTimerQueue(&blinkLeftLeds);
